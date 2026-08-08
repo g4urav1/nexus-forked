@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { NavLink } from "react-router";
+import { Navigate, NavLink, useNavigate } from "react-router";
 
 export default function DesktopNav() {
     const [darkMode, setDarkMode] = useState(true);
     const [activeChatId, setActiveChatId] = useState(1);
     const [mobileShowChat, setMobileShowChat] = useState(false); // Mobile state to switch between list & chat
     const [messageInput, setMessageInput] = useState('');
+
+
+    const navigate = useNavigate()
+    const handleLogout = ()=>{
+        if(confirm("Do you want to logout?")){
+            navigate("/login")
+        }
+    }
 
     return (
         <aside className="hidden md:flex md:w-20 xl:w-64 flex-col justify-between h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] sticky top-4 lg:top-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-4 shadow-sm shrink-0">
@@ -73,6 +81,21 @@ export default function DesktopNav() {
                     }>
                     <svg className="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
                     <span className="text-[10px]">Profile</span>
+
+                </NavLink>
+                <NavLink
+                onClick={()=>handleLogout()}
+                   
+                    className={
+                        `flex flex-col items-center space-y-1 transition
+                          text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                        }`
+                    }>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
+                        <path fillRule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z" />
+                        <path fillRule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z" />
+                    </svg>
+                    <span className="text-[10px]">Logout</span>
 
                 </NavLink>
             </div>
