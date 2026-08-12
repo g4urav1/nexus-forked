@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
+import Popup from "../Individual/Popup";
 import { ArrowLeft, Mail, Text } from "lucide-react";
 import { BiLeftArrow } from "react-icons/bi";
 import { useNavigate } from "react-router";
@@ -10,6 +11,9 @@ export default function EditPage() {
 
   const [Username, setUsername] = useState("");
   const [Bio, setBio] = useState("");
+  const [ response, setResponse] = useState("")
+  const [ showPopup, setShowPopup] = useState(false)
+
 
   const handleChange = async () => {
     try {
@@ -27,8 +31,8 @@ export default function EditPage() {
 
       const data = await response.json();
       if (response.ok) {
-        alert(data.message);
-        navigate("/profile");
+       setResponse(data.message)
+       setShowPopup(true)
       } else {
         alert("server error");
       }
@@ -41,6 +45,7 @@ export default function EditPage() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
+      {showPopup && <Popup response = {response} setShowPopup={setShowPopup}/>}
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
         {/* APP CONTAINER */}
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 lg:gap-6 p-2 sm:p-4 lg:p-6 pb-20 md:pb-6">
@@ -107,3 +112,4 @@ export default function EditPage() {
     </div>
   );
 }
+

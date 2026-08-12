@@ -182,9 +182,9 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-gray-500">
             Don't have an account?
-            <button className="ml-2 font-semibold text-pink-500 hover:underline">
+            <a href="signup" className="ml-2 font-semibold text-pink-500 hover:underline">
               Sign Up
-            </button>
+            </a>
           </p>
         </div>
       </div>

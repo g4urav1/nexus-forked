@@ -87,7 +87,7 @@ export default function ProfilePage() {
                 <div className="relative">
                   <img
                     src={userArr.avatar}
-                    alt={user.Username}
+                    alt={user?.Username || "loading..."}
                     className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover ring-4 ring-white dark:ring-slate-900 shadow-xl"
                   />
                   <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full absolute bottom-2 right-2"></span>
@@ -103,15 +103,15 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                    {user.Username}
+                    {user?.Username || <p className="animate-pulse">loading...</p>}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    {user.Email}
+                    {user?.Email || <span className="animate-pulse">loading...</span>}
                   </p>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                  {user.Bio}
+                  {user?.Bio || <span className="animate-pulse">loading...</span>}
                 </p>
 
                 {/* Meta details */}
@@ -231,12 +231,12 @@ export default function ProfilePage() {
                     <div className="flex items-center space-x-3">
                       <img
                         src={userArr.avatar}
-                        alt={user.Username}
+                        alt={user?.Username || <p className="animate-pulse">loading...</p>}
                         className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                          {user.Username}
+                          {user?.Username || <p className="animate-pulse">loading...</p>}
                         </h4>
                         <span className="text-[11px] text-slate-400">
                           {post.time}
