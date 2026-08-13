@@ -94,9 +94,13 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Edit Profile Action */}
+                <div className="space-x-4">
+                <button onClick={()=>window.location.href="create/post"} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95">
+                  Create Post
+                </button>
                 <button onClick={()=>window.location.href="edit/profile"} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95">
                   Edit Profile
-                </button>
+                </button></div>
               </div>
 
               {/* Identity & Bio */}

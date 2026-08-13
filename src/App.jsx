@@ -7,6 +7,7 @@ import SearchPage from "./Components/Pages/Search";
 import LoginPage from "./Components/Pages/Login";
 import SignupPage from "./Components/Pages/Signup";
 import EditPage from "./Components/Pages/Edit";
+import CreatePostPage from "./Components/Pages/CreatePost";
 import { useEffect, useState } from "react";
 import { UserContext } from "./Components/context/context";
 
@@ -22,6 +23,7 @@ export default function App() {
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignupPage /> },
     { path: "/edit/profile", element: <EditPage/> },
+    { path: "/create/post", element: <CreatePostPage/> },
   ]);
 
   const loadUser = async () => {
