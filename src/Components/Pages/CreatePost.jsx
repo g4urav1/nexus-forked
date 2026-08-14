@@ -10,34 +10,35 @@ export default function EditPage() {
   const [darkMode, setDarkMode] = useState(true);
 
   const [Post, setPost] = useState(null);
-const [Caption, setCaption] = useState("");
+  const [Caption, setCaption] = useState("");
 
-const handleSubmit = async () => {
-  if (!Post) {
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image", Post);
-  formData.append("caption", Caption);
-
-  try {
-    const response = await fetch("http://localhost:1111/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Upload failed");
+  const handleSubmit = async () => {
+    if (!Post) {
+      return;
     }
 
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-};
+    const formData = new FormData();
+    formData.append("image", Post);
+    formData.append("caption", Caption);
+
+    try {
+      const response = await fetch("http://localhost:1111/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+      }
+
+      console.log(data);
+    } catch (error) {
+      alert("something went wrong");
+      console.error(error);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -91,7 +92,9 @@ const handleSubmit = async () => {
 
               <button
                 type="button"
-                onClick={()=>{handleSubmit()}}
+                onClick={() => {
+                  handleSubmit();
+                }}
                 className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95`}
               >
                 Post
