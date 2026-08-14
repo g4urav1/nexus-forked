@@ -22,7 +22,8 @@ export default function EditPage() {
     formData.append("caption", Caption);
 
     try {
-      const response = await fetch("http://localhost:1111/upload", {
+      const response = await fetch("http://localhost:1111/uploadmain", {
+        credentials: "include",
         method: "POST",
         body: formData,
       });
