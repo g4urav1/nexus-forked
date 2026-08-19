@@ -1,13 +1,37 @@
 import React, { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
-import { UserContext } from "../context/context";
+import { UserContext, UserPostContext } from "../context/context";
+import { User } from "lucide-react";
 
 export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
+  const { UserPosts } = useContext(UserPostContext);
+
   const { user } = useContext(UserContext);
+
+  const formatPostTime = (date) => {
+    const diff = Date.now() - new Date(date).getTime();
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days}d ago`;
+
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   // User details state
   const userArr = {
@@ -27,30 +51,29 @@ export default function ProfilePage() {
   };
 
   // Profile Feed Content
-  const userPosts = [
-    {
-      id: 1,
-      time: "2h ago",
-      content:
-        "Just dropped the latest update to Nexus UI! Complete dark-mode overhaul with responsive layouts and smooth micro-interactions. Let me know what you think! 👇",
-      likes: 142,
-      comments: 18,
-      shares: 9,
-      image:
-        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: 2,
-      time: "3 days ago",
-      content:
-        "Quick tip for Tailwind v4: Leverage dynamic CSS variables for effortless dark mode color tokens without cluttering your DOM classes.",
-      likes: 89,
-      comments: 12,
-      shares: 24,
-      image: null,
-    },
-  ];
-
+  // const UserPosts = [
+  //   {
+  //     id: 1,
+  //     time: "2h ago",
+  //     content:
+  //       "Just dropped the latest update to Nexus UI! Complete dark-mode overhaul with responsive layouts and smooth micro-interactions. Let me know what you think! 👇",
+  //     likes: 142,
+  //     comments: 18,
+  //     shares: 9,
+  //     image:
+  //       "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
+  //   },
+  //   {
+  //     id: 2,
+  //     time: "3 days ago",
+  //     content:
+  //       "Quick tip for Tailwind v4: Leverage dynamic CSS variables for effortless dark mode color tokens without cluttering your DOM classes.",
+  //     likes: 89,
+  //     comments: 12,
+  //     shares: 24,
+  //     image: null,
+  //   },
+  // ];
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -95,27 +118,40 @@ export default function ProfilePage() {
 
                 {/* Edit Profile Action */}
                 <div className="space-x-4">
-                <button onClick={()=>window.location.href="create/post"} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95">
-                  Create Post
-                </button>
-                <button onClick={()=>window.location.href="edit/profile"} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95">
-                  Edit Profile
-                </button></div>
+                  <button
+                    onClick={() => (window.location.href = "create/post")}
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                  >
+                    Create Post
+                  </button>
+                  <button
+                    onClick={() => (window.location.href = "edit/profile")}
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
               </div>
 
               {/* Identity & Bio */}
               <div className="space-y-3">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                    {user?.Username || <p className="animate-pulse">loading...</p>}
+                    {user?.Username || (
+                      <p className="animate-pulse">loading...</p>
+                    )}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    {user?.Email || <span className="animate-pulse">loading...</span>}
+                    {user?.Email || (
+                      <span className="animate-pulse">loading...</span>
+                    )}
                   </p>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                  {user?.Bio || <span className="animate-pulse">loading...</span>}
+                  {user?.Bio || (
+                    <span className="animate-pulse">loading...</span>
+                  )}
                 </p>
 
                 {/* Meta details */}
@@ -178,7 +214,7 @@ export default function ProfilePage() {
                         d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
                       />
                     </svg>
-                    <span>{userArr.joined}</span>
+                    <span>{user?.Joined}</span>
                   </div>
                 </div>
 
@@ -186,7 +222,7 @@ export default function ProfilePage() {
                 <div className="flex space-x-5 pt-1 text-xs sm:text-sm">
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {userArr.following}
+                      {user?.Following}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Following
@@ -194,7 +230,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {userArr.followers}
+                      {user?.Followers}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Followers
@@ -227,35 +263,45 @@ export default function ProfilePage() {
             {/* Tab Feed Content */}
             <div className="p-4 sm:p-6 space-y-4 bg-slate-50/50 dark:bg-slate-950/30">
               {activeTab === "posts" &&
-                userPosts.map((post) => (
+                UserPosts.length === 0 &&
+                "NO POSTS YET!"}
+              {activeTab === "posts" &&
+                UserPosts.length > 0 &&
+                UserPosts.map((post) => (
                   <article
-                    key={post.id}
+                    key={post._id}
                     className="p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl space-y-3 shadow-sm"
                   >
                     <div className="flex items-center space-x-3">
                       <img
                         src={userArr.avatar}
-                        alt={user?.Username || <p className="animate-pulse">loading...</p>}
+                        alt={
+                          user?.Username || (
+                            <p className="animate-pulse">loading...</p>
+                          )
+                        }
                         className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                          {user?.Username || <p className="animate-pulse">loading...</p>}
+                          {user?.Username || (
+                            <p className="animate-pulse">loading...</p>
+                          )}
                         </h4>
                         <span className="text-[11px] text-slate-400">
-                          {post.time}
+                          {formatPostTime(post.UploadedAt)}
                         </span>
                       </div>
                     </div>
 
                     <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
-                      {post.content}
+                      {post.Caption}
                     </p>
 
-                    {post.image && (
+                    {post.Url && (
                       <div className="rounded-xl overflow-hidden max-h-80 border border-slate-100 dark:border-slate-800">
                         <img
-                          src={post.image}
+                          src={post.Url}
                           alt="Post media"
                           className="w-full h-full object-cover"
                         />
@@ -277,7 +323,7 @@ export default function ProfilePage() {
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
                           />
                         </svg>
-                        <span>{post.likes}</span>
+                        <span>{post.Likes}</span>
                       </button>
                       <button className="flex items-center space-x-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
                         <svg
@@ -293,7 +339,7 @@ export default function ProfilePage() {
                             d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.585 1.659l-.48 1.921 2.03-.406c.552-.11 1.115.08 1.542.418A8.93 8.93 0 0012 20.25z"
                           />
                         </svg>
-                        <span>{post.comments}</span>
+                        <span>{post.Shares}</span>
                       </button>
                     </div>
                   </article>
@@ -301,16 +347,13 @@ export default function ProfilePage() {
 
               {activeTab === "media" && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {[
-                    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80",
-                    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80",
-                  ].map((src, i) => (
+                  {UserPosts.map((src) => (
                     <div
-                      key={i}
+                      key={src._id}
                       className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800"
                     >
                       <img
-                        src={src}
+                        src={src.Url}
                         alt="Media thumbnail"
                         className="w-full h-full object-cover hover:scale-105 transition duration-300"
                       />

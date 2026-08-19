@@ -21,6 +21,8 @@ export default function EditPage() {
     formData.append("image", Post);
     formData.append("caption", Caption);
 
+  
+
     try {
       const response = await fetch("http://localhost:1111/uploadmain", {
         credentials: "include",

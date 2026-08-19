@@ -9,10 +9,11 @@ import SignupPage from "./Components/Pages/Signup";
 import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
 import { useEffect, useState } from "react";
-import { UserContext } from "./Components/context/context";
+import { UserContext, UserPostContext } from "./Components/context/context";
 
 export default function App() {
   const [user, setUser] = useState("");
+  const [UserPosts, setUserPosts] = useState([]);
 
   const router = createBrowserRouter([
     { path: "/", element: <FeedPage /> },
@@ -33,7 +34,11 @@ export default function App() {
       });
       const data = await response.json();
 
-      setUser(data);
+      setUser(data.user);
+      setUserPosts(data.UserPosts);
+      console.log(data.UserPosts);
+
+      
     } catch (error) {
       console.error(error);
     }
@@ -44,8 +49,10 @@ export default function App() {
   }, []);
 
   return (
+    <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
     <UserContext.Provider value={{ user, setUser }}>
       <RouterProvider router={router} />
     </UserContext.Provider>
+    </UserPostContext.Provider>
   );
 }
