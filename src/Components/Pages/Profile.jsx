@@ -50,31 +50,6 @@ export default function ProfilePage() {
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
   };
 
-  // Profile Feed Content
-  // const UserPosts = [
-  //   {
-  //     id: 1,
-  //     time: "2h ago",
-  //     content:
-  //       "Just dropped the latest update to Nexus UI! Complete dark-mode overhaul with responsive layouts and smooth micro-interactions. Let me know what you think! 👇",
-  //     likes: 142,
-  //     comments: 18,
-  //     shares: 9,
-  //     image:
-  //       "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
-  //   },
-  //   {
-  //     id: 2,
-  //     time: "3 days ago",
-  //     content:
-  //       "Quick tip for Tailwind v4: Leverage dynamic CSS variables for effortless dark mode color tokens without cluttering your DOM classes.",
-  //     likes: 89,
-  //     comments: 12,
-  //     shares: 24,
-  //     image: null,
-  //   },
-  // ];
-
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
@@ -109,7 +84,10 @@ export default function ProfilePage() {
                 {/* Avatar */}
                 <div className="relative">
                   <img
-                    src={userArr.avatar}
+                    src={
+                      user?.Pfp ||
+                      "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
+                    }
                     alt={user?.Username || "loading..."}
                     className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover ring-4 ring-white dark:ring-slate-900 shadow-xl"
                   />

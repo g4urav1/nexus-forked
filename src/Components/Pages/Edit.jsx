@@ -2,7 +2,7 @@ import { useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import Popup from "../Individual/Popup";
-import { ArrowLeft, Mail, Text } from "lucide-react";
+import { ArrowLeft, Mail, Text, User2 } from "lucide-react";
 import { BiLeftArrow } from "react-icons/bi";
 import { useNavigate } from "react-router";
 
@@ -11,30 +11,30 @@ export default function EditPage() {
 
   const [Username, setUsername] = useState("");
   const [Bio, setBio] = useState("");
-  const [ response, setResponse] = useState("")
-  const [ showPopup, setShowPopup] = useState(false)
-
+  const [response, setResponse] = useState("");
+  const [Pfp, setPfp] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleChange = async () => {
+    const formData = new FormData();
+    formData.append("Pfp", Pfp);
+    formData.append("Username", Username);
+    formData.append("Bio", Bio);
+
     try {
       const response = await fetch("http://localhost:1111/edit_profile", {
         credentials: "include",
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          Username,
-          Bio,
-        }),
+        body: formData,
       });
 
       const data = await response.json();
       if (response.ok) {
-       setResponse(data.message)
-       setShowPopup(true)
+        setResponse(data.message);
+        setShowPopup(true);
       } else {
-        alert("server error");
+        alert(data.message);
+        console.log(data);
       }
     } catch (error) {
       console.log(error);
@@ -45,7 +45,7 @@ export default function EditPage() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      {showPopup && <Popup response = {response} setShowPopup={setShowPopup}/>}
+      {showPopup && <Popup response={response} setShowPopup={setShowPopup} />}
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
         {/* APP CONTAINER */}
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 lg:gap-6 p-2 sm:p-4 lg:p-6 pb-20 md:pb-6">
@@ -61,6 +61,21 @@ export default function EditPage() {
               <ArrowLeft />
             </div>
             <form className="space-y-5 w-1/2 mx-auto">
+              <div className="relative">
+                <User2
+                  size={18}
+                  className="absolute left-4 top-4 text-gray-400"
+                />
+
+                <input
+                  placeholder="Profile picture"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={(e) => setPfp(e.target.files[0])}
+                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 pl-11 pr-12 outline-none focus:ring-2 focus:ring-pink-500"
+                />
+              </div>
+
               <div className="relative">
                 <Mail
                   size={18}
@@ -97,7 +112,9 @@ export default function EditPage() {
 
               <button
                 type="button"
-                onClick={()=>{handleChange()}}
+                onClick={() => {
+                  handleChange();
+                }}
                 className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95`}
               >
                 Update
@@ -112,4 +129,3 @@ export default function EditPage() {
     </div>
   );
 }
-

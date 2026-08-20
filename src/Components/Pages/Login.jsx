@@ -44,7 +44,7 @@ export default function LoginPage() {
         alert(data.message);
         navigate("/");
       } else {
-        alert("server error");
+        alert(data.message);
       }
     } catch (error) {
       console.log(error);
