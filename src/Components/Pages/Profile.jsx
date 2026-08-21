@@ -214,6 +214,14 @@ export default function ProfilePage() {
                       Followers
                     </span>
                   </div>
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {UserPosts.length}
+                    </span>{" "}
+                    <span className="text-slate-500 dark:text-slate-400">
+                      Posts
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -252,7 +260,10 @@ export default function ProfilePage() {
                   >
                     <div className="flex items-center space-x-3">
                       <img
-                        src={userArr.avatar}
+                     src={
+                      user?.Pfp ||
+                      "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
+                    }
                         alt={
                           user?.Username || (
                             <p className="animate-pulse">loading...</p>

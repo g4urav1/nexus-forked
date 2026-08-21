@@ -36,7 +36,6 @@ export default function App() {
 
       setUser(data.user);
       setUserPosts(data.UserPosts);
-      console.log(data.UserPosts);
 
       
     } catch (error) {
