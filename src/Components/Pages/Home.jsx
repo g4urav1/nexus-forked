@@ -3,10 +3,12 @@ import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { UserContext } from "../context/context";
 import { Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function FeedPage() {
   const [darkMode, setDarkMode] = useState(true);
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
 
@@ -217,6 +219,11 @@ export default function FeedPage() {
             {posts.map((post) => (
               <article
                 key={post._id}
+                onClick={() => {
+                  console.log("CLICKED POST:", post);
+                  console.log("POST ID:", post._id);
+                  window.location.href = (`/post/${post._id}`);
+                }}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"
               >
                 {/* Author Info */}
@@ -263,7 +270,10 @@ export default function FeedPage() {
                   <div className="flex items-center space-x-5">
                     {/* Like */}
                     <button
-                      onClick={() => handleLike(post._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLike(post._id);
+                      }}
                       className={`flex items-center space-x-1.5 transition ${
                         post.isLiked
                           ? "text-rose-600 dark:text-rose-500"

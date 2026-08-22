@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, NavLink, useNavigate } from "react-router";
+import { Navigate, NavLink, useNavigate } from "react-router-dom";
 
 export default function DesktopNav() {
     const [darkMode, setDarkMode] = useState(true);

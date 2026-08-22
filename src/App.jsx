@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthPages from "./Components/Pages/Auth";
 import FeedPage from "./Components/Pages/Home";
 import MessagesPage from "./Components/Pages/Messages";
@@ -8,6 +8,7 @@ import LoginPage from "./Components/Pages/Login";
 import SignupPage from "./Components/Pages/Signup";
 import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
+import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
 import { UserContext, UserPostContext } from "./Components/context/context";
 
@@ -23,8 +24,9 @@ export default function App() {
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignupPage /> },
-    { path: "/edit/profile", element: <EditPage/> },
-    { path: "/create/post", element: <CreatePostPage/> },
+    { path: "/edit/profile", element: <EditPage /> },
+    { path: "/create/post", element: <CreatePostPage /> },
+    { path: "/post/:id", element: <Post /> },
   ]);
 
   const loadUser = async () => {
@@ -36,8 +38,6 @@ export default function App() {
 
       setUser(data.user);
       setUserPosts(data.UserPosts);
-
-      
     } catch (error) {
       console.error(error);
     }
@@ -49,9 +49,9 @@ export default function App() {
 
   return (
     <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
-    <UserContext.Provider value={{ user, setUser }}>
-      <RouterProvider router={router} />
-    </UserContext.Provider>
+      <UserContext.Provider value={{ user, setUser }}>
+        <RouterProvider router={router} />
+      </UserContext.Provider>
     </UserPostContext.Provider>
   );
 }

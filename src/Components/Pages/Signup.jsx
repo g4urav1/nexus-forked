@@ -1,6 +1,6 @@
 import { Camera, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
