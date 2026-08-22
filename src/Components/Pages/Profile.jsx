@@ -2,13 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { UserContext, UserPostContext } from "../context/context";
-import { User } from "lucide-react";
+import { Heart, User } from "lucide-react";
 
 export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
-  const { UserPosts } = useContext(UserPostContext);
+  const { UserPosts, setUserPosts } = useContext(UserPostContext);
 
   const { user } = useContext(UserContext);
 
@@ -48,6 +48,42 @@ export default function ProfilePage() {
       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80",
     cover:
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      const response = await fetch("http://localhost:1111/likes", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          PostId: postId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      setUserPosts((Posts) =>
+        Posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                Likes: data.likes,
+                isLiked: data.isLiked,
+              }
+            : post,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -260,10 +296,10 @@ export default function ProfilePage() {
                   >
                     <div className="flex items-center space-x-3">
                       <img
-                     src={
-                      user?.Pfp ||
-                      "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
-                    }
+                        src={
+                          user?.Pfp ||
+                          "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
+                        }
                         alt={
                           user?.Username || (
                             <p className="animate-pulse">loading...</p>
@@ -298,20 +334,18 @@ export default function ProfilePage() {
                     )}
 
                     <div className="flex items-center space-x-6 text-slate-400 text-xs pt-2">
-                      <button className="flex items-center space-x-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          strokeWidth="2"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                          />
-                        </svg>
+                      <button
+                        onClick={() => handleLike(post._id)}
+                        className={`flex items-center space-x-1.5 transition ${
+                          post.isLiked
+                            ? "text-rose-600 dark:text-rose-500"
+                            : "hover:text-rose-600 dark:hover:text-rose-500"
+                        } font-bold`}
+                      >
+                        <Heart
+                          size={14}
+                          fill={post.isLiked ? "currentColor" : "none"}
+                        />
                         <span>{post.Likes}</span>
                       </button>
                       <button className="flex items-center space-x-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition">

@@ -2,10 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { UserContext } from "../context/context";
+import { Heart } from "lucide-react";
 
 export default function FeedPage() {
   const [darkMode, setDarkMode] = useState(true);
-  const [activeTab, setActiveTab] = useState("home");
   const { user } = useContext(UserContext);
 
   const [posts, setPosts] = useState([]);
@@ -16,9 +16,9 @@ export default function FeedPage() {
     });
     const data = await response.json();
     setPosts(data);
+
     console.log(data);
   };
-
   useEffect(() => {
     getFeed();
   }, []);
@@ -83,6 +83,42 @@ export default function FeedPage() {
     }
   };
 
+  const handleLike = async (postId) => {
+    try {
+      const response = await fetch("http://localhost:1111/likes", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          PostId: postId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      setPosts((Posts) =>
+        Posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                Likes: data.likes,
+                isLiked: data.isLiked,
+              }
+            : post,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
@@ -127,7 +163,6 @@ export default function FeedPage() {
                       type="file"
                       id="AddPost"
                       accept="image/png,image/jpeg,image/jpg"
-                      onChange={(e) => setNewPost(e.target.files[0])}
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -223,27 +258,22 @@ export default function FeedPage() {
                     />
                   </div>
                 )}
-
-              
                 {/* Bottom Actions */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 font-medium">
                   <div className="flex items-center space-x-5">
                     {/* Like */}
                     <button
                       onClick={() => handleLike(post._id)}
-                      className={`flex items-center space-x-1.5 transition ${post.isLiked ? "text-rose-600 dark:text-rose-500 font-bold" : "hover:text-rose-600"}`}
+                      className={`flex items-center space-x-1.5 transition ${
+                        post.isLiked
+                          ? "text-rose-600 dark:text-rose-500"
+                          : "hover:text-rose-600 dark:hover:text-rose-500"
+                      } font-bold`}
                     >
-                      <svg
-                        className={`w-4 h-4 ${post.isLiked ? "fill-rose-600 stroke-rose-600" : "fill-none stroke-current"}`}
-                        viewBox="0 0 24 24"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
+                      <Heart
+                        size={14}
+                        fill={post.isLiked ? "currentColor" : "none"}
+                      />
                       <span>{post.Likes}</span>
                     </button>
 
@@ -263,24 +293,6 @@ export default function FeedPage() {
                       <span>{post.comments}</span>
                     </button>
                   </div>
-
-                  {/* Bookmark */}
-                  <button
-                    onClick={() => handleBookmark(post.id)}
-                    className={`transition ${post.isBookmarked ? "text-amber-500" : "hover:text-amber-500"}`}
-                  >
-                    <svg
-                      className={`w-4 h-4 ${post.isBookmarked ? "fill-amber-500 stroke-amber-500" : "fill-none stroke-current"}`}
-                      viewBox="0 0 24 24"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                      />
-                    </svg>
-                  </button>
                 </div>
               </article>
             ))}
