@@ -35,7 +35,9 @@ export default function App() {
         credentials: "include",
       });
       const data = await response.json();
-
+      if (!response.ok) {
+        window.location.href = "/login";
+      }
       setUser(data.user);
       setUserPosts(data.UserPosts);
     } catch (error) {
@@ -44,7 +46,9 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadUser();
+    if (window.location.pathname !== "/login" && window.location.pathname !== "/signup") {
+      loadUser();
+    }
   }, []);
 
   return (

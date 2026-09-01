@@ -1,7 +1,8 @@
-import { Heart } from "lucide-react";
+import { Heart, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DesktopNav from "../Individual/DesktopNav";
+import MobileMenu from "../Individual/MobileMenu";
 
 export default function Post() {
   const { id } = useParams();
@@ -9,67 +10,146 @@ export default function Post() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [commentLoading, setCommentLoading] = useState(false);
+
+  const defaultPfp =
+    "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg";
+
+  const getPost = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`http://localhost:1111/post/${id}`, {
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Failed to fetch post");
+
+      setPost(data);
+    } catch (error) {
+      console.error("GET POST ERROR:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getComments = async () => {
+    try {
+      setCommentsLoading(true);
+
+      const response = await fetch(
+        `http://localhost:1111/getComments/${id}`,
+        { credentials: "include" }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok)
+        throw new Error(data.message || "Failed to fetch comments");
+
+      setComments(data);
+    } catch (error) {
+      console.error("GET COMMENTS ERROR:", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const getPost = async () => {
-      try {
-        const response = await fetch(`http://localhost:1111/post/${id}`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
-
-        setPost(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     getPost();
+    getComments();
   }, [id]);
+
   const handleLike = async (postId) => {
     try {
       const response = await fetch("http://localhost:1111/likes", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ PostId: postId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Unable to like post");
+        return;
+      }
+
+      setPost((currentPost) =>
+        currentPost?._id === postId
+          ? { ...currentPost, Likes: data.likes, isLiked: data.isLiked }
+          : currentPost
+      );
+    } catch (error) {
+      console.error("LIKE ERROR:", error);
+    }
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+
+    const trimmedComment = commentText.trim();
+    if (!trimmedComment) return;
+
+    try {
+      setCommentLoading(true);
+
+      const response = await fetch("http://localhost:1111/addComments", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          PostId: postId,
+          PostId: id,
+          Comment: trimmedComment,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message);
+        alert(data.message || "Failed to add comment");
         return;
       }
 
-      setPost((post) =>
-        post._id === postId
+      setComments((prev) => [
+        ...prev,
+        {
+          id: data.id,
+          Commenter: data.Commenter,
+          CommenterPfp: data.CommenterPfp,
+          CommentText: data.Comment,
+          CommentedAt: data.CommentedAt,
+        },
+      ]);
+
+      setCommentText("");
+
+      setPost((currentPost) =>
+        currentPost
           ? {
-              ...post,
-              Likes: data.likes,
-              isLiked: data.isLiked,
+              ...currentPost,
+              CommentCount: data.CommentCount,
+              comments: data.CommentCount,
             }
-          : post,
+          : currentPost
       );
     } catch (error) {
-      console.error(error);
+      console.error("ADD COMMENT ERROR:", error);
+    } finally {
+      setCommentLoading(false);
     }
   };
 
   const formatPostTime = (date) => {
-    const diff = Date.now() - new Date(date).getTime();
+    if (!date) return "";
 
+    const diff = Date.now() - new Date(date).getTime();
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -89,44 +169,45 @@ export default function Post() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   if (!post) {
-    return <div>Post not found</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex items-center justify-center">
+        Post not found
+      </div>
+    );
   }
+
+  const commentCount = post.CommentCount ?? post.comments ?? comments.length;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex gap-6 px-4 py-6">
-        {/* ================= 1. SIDEBAR NAVIGATION ================= */}
         <DesktopNav />
+
         <article
           key={post._id}
-          onClick={() => {
-            console.log("CLICKED POST:", post);
-            console.log("POST ID:", post._id);
-            window.location.href = `/post/${post._id}`;
-          }}
-          className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3 w-2/5"
+          className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm transition-all duration-200 space-y-3 w-2/5 h-fit"
         >
-          {/* Author Info */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <img
-                src={
-                  post.Pfp ||
-                  "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
-                }
+                src={post.Pfp || defaultPfp}
                 alt={post.Username}
                 className="w-10 h-10 rounded-full object-cover"
               />
+
               <div>
-                <div className="flex items-center space-x-1.5">
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 hover:underline cursor-pointer">
-                    {post.Username}
-                  </h3>
-                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  {post.Username}
+                </h3>
+
                 <span className="text-xs text-slate-400 dark:text-slate-500">
                   {post.Username} • {formatPostTime(post.UploadedAt)}
                 </span>
@@ -134,44 +215,37 @@ export default function Post() {
             </div>
           </div>
 
-          {/* Content */}
           <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
             {post.Caption}
           </p>
 
-          {/* Optional Image */}
           {post.Url && (
-            <div className="rounded-2xl  overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
               <img
                 src={post.Url}
                 alt="Post asset"
-                className=" object-contain"
+                className="w-full object-contain"
               />
             </div>
           )}
-          {/* Bottom Actions */}
+
           <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 font-medium">
             <div className="flex items-center space-x-5">
-              {/* Like */}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLike(post._id);
-                }}
-                className={`flex items-center space-x-1.5 transition ${
+                onClick={() => handleLike(post._id)}
+                className={`flex items-center space-x-1.5 transition font-bold ${
                   post.isLiked
                     ? "text-rose-600 dark:text-rose-500"
                     : "hover:text-rose-600 dark:hover:text-rose-500"
-                } font-bold`}
+                }`}
               >
                 <Heart
                   size={14}
                   fill={post.isLiked ? "currentColor" : "none"}
                 />
-                <span>{post.Likes}</span>
+                <span>{post.Likes || 0}</span>
               </button>
 
-              {/* Comments */}
               <button className="flex items-center space-x-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
                 <svg
                   className="w-4 h-4 fill-none stroke-current"
@@ -181,15 +255,104 @@ export default function Post() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    d="M8 12h.01 M12 12h.01 M16 12h.01 M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <span>{post.comments}</span>
+                <span>{commentCount}</span>
               </button>
             </div>
           </div>
         </article>
-        <article className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3 w-2/5"></article>
+
+        <article className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm w-2/5 h-fit overflow-hidden">
+          <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Comments
+            </h2>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {comments.length}{" "}
+              {comments.length === 1 ? "comment" : "comments"}
+            </p>
+          </div>
+
+          <div className="max-h-[500px] overflow-y-auto">
+            {commentsLoading && (
+              <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                Loading comments...
+              </div>
+            )}
+
+            {!commentsLoading && comments.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="text-3xl mb-2">💬</div>
+
+                <p className="font-medium text-slate-700 dark:text-slate-300">
+                  No comments yet
+                </p>
+
+                <p className="text-xs text-slate-400 mt-1">
+                  Be the first to comment
+                </p>
+              </div>
+            )}
+
+            {!commentsLoading && comments.length > 0 && (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="p-4 flex gap-3">
+                    <img
+                      src={comment.CommenterPfp || defaultPfp}
+                      alt={comment.Commenter}
+                      className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {comment.Commenter}
+                        </h3>
+
+                        <span className="text-[11px] text-slate-400 whitespace-nowrap">
+                          {formatPostTime(comment.CommentedAt)}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 break-words">
+                        {comment.CommentText}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <form
+            onSubmit={handleAddComment}
+            className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2"
+          >
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              maxLength={500}
+              disabled={commentLoading}
+              className="flex-1 px-4 py-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-indigo-500/30 disabled:opacity-50"
+            />
+
+            <button
+              type="submit"
+              disabled={!commentText.trim() || commentLoading}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600 text-white transition hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            >
+              <Send size={16} />
+            </button>
+          </form>
+        </article>
+
+        <MobileMenu />
       </div>
     </div>
   );
