@@ -1,4 +1,4 @@
-import { Camera, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { Camera, Check, Eye, EyeOff, Lock, Mail, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,24 +14,44 @@ export default function SignupPage() {
   const [disable, setDisable] = useState(true);
   const [error, setError] = useState(false);
 
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+
+  const usernameAvailability = async (e) => {
+    const username = e.target.value;
+
+    if (!username.trim()) {
+      setUsernameAvailable(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:1111/usernameAvailability?username=${encodeURIComponent(username)}`,
+      );
+
+      const data = await response.json();
+
+      console.log(username);
+      console.log(data);
+
+      setUsernameAvailable(data.isAvailable);
+    } catch (error) {
+      console.error("Username availability error:", error);
+      setUsernameAvailable(null);
+    }
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!Username || !Email || !Password || !ConfirmPassword) {
-      setDisable(true);
-    } else {
-      setDisable(false);
-    }
+    const fieldsEmpty = !Username || !Email || !Password || !ConfirmPassword;
+
+    const passwordsDontMatch =
+      ConfirmPassword !== "" && Password !== ConfirmPassword;
+
+    setError(passwordsDontMatch);
+
+    setDisable(fieldsEmpty || passwordsDontMatch);
   }, [Username, Email, Password, ConfirmPassword]);
-  useEffect(() => {
-    if (ConfirmPassword !== "" && Password !== ConfirmPassword) {
-      setError(true);
-      setDisable(true);
-    } else {
-      setError(false);
-      setDisable(false);
-    }
-  }, [Password, ConfirmPassword]);
 
   const handleSignup = async () => {
     try {
@@ -102,10 +122,21 @@ export default function SignupPage() {
             <input
               type="text"
               value={Username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                usernameAvailability(e);
+              }}
               placeholder="Username"
               className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 pl-11 pr-4 outline-none focus:ring-2 focus:ring-pink-500"
             />
+
+            <p className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+              {usernameAvailable === false ? (
+                <X size={18} color="red" />
+              ) : (
+                <Check size={18} color="green" />
+              )}
+            </p>
           </div>
 
           <div className="relative">
@@ -207,9 +238,12 @@ export default function SignupPage() {
 
         <p className="mt-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
           Already have an account?
-           <a href="login" className="ml-2 font-semibold text-pink-500 hover:underline">
-              Sign in
-            </a>
+          <a
+            href="login"
+            className="ml-2 font-semibold text-pink-500 hover:underline"
+          >
+            Sign in
+          </a>
         </p>
       </div>
     </div>

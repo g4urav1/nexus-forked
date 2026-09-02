@@ -285,15 +285,12 @@ export default function Post() {
 
             {!commentsLoading && comments.length === 0 && (
               <div className="p-8 text-center">
-                <div className="text-3xl mb-2">💬</div>
 
                 <p className="font-medium text-slate-700 dark:text-slate-300">
                   No comments yet
                 </p>
 
-                <p className="text-xs text-slate-400 mt-1">
-                  Be the first to comment
-                </p>
+               
               </div>
             )}
 

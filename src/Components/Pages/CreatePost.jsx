@@ -1,10 +1,8 @@
 import { useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
-import Popup from "../Individual/PopUp";
 import { ArrowLeft, Image, Text } from "lucide-react";
-import { BiLeftArrow } from "react-icons/bi";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function EditPage() {
   const [darkMode, setDarkMode] = useState(true);

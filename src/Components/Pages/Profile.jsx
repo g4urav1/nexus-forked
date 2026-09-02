@@ -292,30 +292,37 @@ export default function ProfilePage() {
                 UserPosts.map((post) => (
                   <article
                     key={post._id}
-                    className="p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl space-y-3 shadow-sm"
+                    onClick={() => {
+                      console.log("CLICKED POST:", post);
+                      console.log("POST ID:", post._id);
+                      window.location.href = `/post/${post._id}`;
+                    }}
+                    className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"
                   >
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={
-                          user?.Pfp ||
-                          "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
-                        }
-                        alt={
-                          user?.Username || (
-                            <p className="animate-pulse">loading...</p>
-                          )
-                        }
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                          {user?.Username || (
-                            <p className="animate-pulse">loading...</p>
-                          )}
-                        </h4>
-                        <span className="text-[11px] text-slate-400">
-                          {formatPostTime(post.UploadedAt)}
-                        </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={
+                            user?.Pfp ||
+                            "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
+                          }
+                          alt={
+                            user?.Username || (
+                              <p className="animate-pulse">loading...</p>
+                            )
+                          }
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                            {user?.Username || (
+                              <p className="animate-pulse">loading...</p>
+                            )}
+                          </h4>
+                          <span className="text-[11px] text-slate-400">
+                            {formatPostTime(post.UploadedAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -324,11 +331,11 @@ export default function ProfilePage() {
                     </p>
 
                     {post.Url && (
-                      <div className="rounded-xl overflow-hidden max-h-80 border border-slate-100 dark:border-slate-800">
+                       <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
                         <img
                           src={post.Url}
                           alt="Post media"
-                          className="w-full h-full object-cover"
+                          className="w-full h-auto object-contain"
                         />
                       </div>
                     )}
@@ -362,7 +369,7 @@ export default function ProfilePage() {
                             d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.585 1.659l-.48 1.921 2.03-.406c.552-.11 1.115.08 1.542.418A8.93 8.93 0 0012 20.25z"
                           />
                         </svg>
-                        <span>{post.Shares}</span>
+                        <span>{post.CommentCount}</span>
                       </button>
                     </div>
                   </article>
