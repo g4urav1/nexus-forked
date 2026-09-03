@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthPages from "./Components/Pages/Auth";
 import FeedPage from "./Components/Pages/Home";
 import MessagesPage from "./Components/Pages/Messages";
-import AdminPage from "./Components/Pages/Admin";
+import ProfilePage from "./Components/Pages/Profile";
 import SearchPage from "./Components/Pages/Search";
 import LoginPage from "./Components/Pages/Login";
 import SignupPage from "./Components/Pages/Signup";
@@ -20,7 +20,8 @@ export default function App() {
     { path: "/", element: <FeedPage /> },
     { path: "/auth", element: <AuthPages /> },
     { path: "/inbox", element: <MessagesPage /> },
-    { path: "/profile", element: <AdminPage /> },
+    { path: "/admin", element: <ProfilePage /> },
+    { path: "/User/:Username", element: <ProfilePage /> },
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignupPage /> },
@@ -31,7 +32,7 @@ export default function App() {
 
   const loadUser = async () => {
     try {
-      const response = await fetch("http://localhost:1111/profile", {
+      const response = await fetch(`http://localhost:1111/admin`, {
         credentials: "include",
       });
       const data = await response.json();
@@ -46,7 +47,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (window.location.pathname !== "/login" && window.location.pathname !== "/signup") {
+    if (
+      window.location.pathname !== "/login" &&
+      window.location.pathname !== "/signup"
+    ) {
       loadUser();
     }
   }, []);

@@ -4,7 +4,7 @@ import DesktopNav from "../Individual/DesktopNav";
 import { UserContext, UserPostContext } from "../context/context";
 import { Heart, User } from "lucide-react";
 
-export default function AdminPage() {
+export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
