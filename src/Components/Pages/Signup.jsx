@@ -53,7 +53,8 @@ export default function SignupPage() {
     setDisable(fieldsEmpty || passwordsDontMatch);
   }, [Username, Email, Password, ConfirmPassword]);
 
-  const handleSignup = async () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch("http://localhost:1111/signup", {
         method: "POST",
@@ -218,8 +219,9 @@ export default function SignupPage() {
           </label>
 
           <button
+            type="button"
             disabled={disable}
-            onClick={() => handleSignup()}
+            onClick={(e) => handleSignup(e)}
             className={`w-full  rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 py-3 font-semibold text-white shadow-lg hover:opacity-90 transition  ${disable ? "cursor-not-allowed " : "cursor-pointer"} `}
           >
             Create Account

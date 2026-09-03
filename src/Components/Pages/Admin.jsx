@@ -4,7 +4,7 @@ import DesktopNav from "../Individual/DesktopNav";
 import { UserContext, UserPostContext } from "../context/context";
 import { Heart, User } from "lucide-react";
 
-export default function ProfilePage() {
+export default function AdminPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
@@ -50,7 +50,8 @@ export default function ProfilePage() {
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
   };
 
-  const handleLike = async (postId) => {
+  const handleLike = async (postId, e) => {
+    e.stopPropagation();
     try {
       const response = await fetch("http://localhost:1111/likes", {
         method: "POST",
@@ -236,7 +237,7 @@ export default function ProfilePage() {
                 <div className="flex space-x-5 pt-1 text-xs sm:text-sm">
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {user?.Following}
+                      {user?.FollowingCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Following
@@ -244,7 +245,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {user?.Followers}
+                      {user?.FollowersCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Followers
@@ -342,7 +343,7 @@ export default function ProfilePage() {
 
                     <div className="flex items-center space-x-6 text-slate-400 text-xs pt-2">
                       <button
-                        onClick={() => handleLike(post._id)}
+                        onClick={(e) => handleLike(post._id, e)}
                         className={`flex items-center space-x-1.5 transition ${
                           post.isLiked
                             ? "text-rose-600 dark:text-rose-500"

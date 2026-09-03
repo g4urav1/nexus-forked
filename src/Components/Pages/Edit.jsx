@@ -4,7 +4,7 @@ import MobileMenu from "../Individual/MobileMenu";
 import Popup from "../Individual/PopUp";
 import { ArrowLeft, Mail, Text, User2 } from "lucide-react";
 import { BiLeftArrow } from "react-icons/bi";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function EditPage() {
   const [darkMode, setDarkMode] = useState(true);

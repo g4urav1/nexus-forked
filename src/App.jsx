@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthPages from "./Components/Pages/Auth";
 import FeedPage from "./Components/Pages/Home";
 import MessagesPage from "./Components/Pages/Messages";
-import ProfilePage from "./Components/Pages/Profile";
+import AdminPage from "./Components/Pages/Admin";
 import SearchPage from "./Components/Pages/Search";
 import LoginPage from "./Components/Pages/Login";
 import SignupPage from "./Components/Pages/Signup";
@@ -20,7 +20,7 @@ export default function App() {
     { path: "/", element: <FeedPage /> },
     { path: "/auth", element: <AuthPages /> },
     { path: "/inbox", element: <MessagesPage /> },
-    { path: "/profile", element: <ProfilePage /> },
+    { path: "/profile", element: <AdminPage /> },
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignupPage /> },
