@@ -11,6 +11,7 @@ import CreatePostPage from "./Components/Pages/CreatePost";
 import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
 import { UserContext, UserPostContext } from "./Components/context/context";
+import NotificationPage from "./Components/Pages/Notification";
 
 export default function App() {
   const [user, setUser] = useState("");
@@ -24,6 +25,7 @@ export default function App() {
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignupPage /> },
+    { path: "/notification", element: <NotificationPage /> },
     { path: "/edit/profile", element: <EditPage /> },
     { path: "/create/post", element: <CreatePostPage /> },
     { path: "/post/:id", element: <Post /> },

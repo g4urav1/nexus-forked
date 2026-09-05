@@ -3,17 +3,17 @@ import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { UserContext, UserPostContext } from "../context/context";
 import { Heart, User } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
-  const {Username}= useParams()
+  const { Username } = useParams();
 
   const [UserPosts, setUserPosts] = useState([]);
 
-  const {user} = useContext(UserContext)
+  const { user } = useContext(UserContext);
   const [CurrentUser, setCurrentUser] = useState(null);
 
   const getProfile = async () => {
@@ -22,11 +22,9 @@ export default function ProfilePage() {
         credentials: "include",
       });
       const data = await response.json();
-      
+
       setCurrentUser(data.user);
       setUserPosts(data.UserPosts);
-
-      
     } catch (error) {
       console.error(error);
     }
@@ -37,9 +35,8 @@ export default function ProfilePage() {
   }, [Username, UserPosts]);
 
   useEffect(() => {
-  console.log("currentuser:", CurrentUser);
-}, [CurrentUser]);
-
+    console.log("currentuser:", CurrentUser);
+  }, [CurrentUser]);
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -115,6 +112,13 @@ export default function ProfilePage() {
       console.error(error);
     }
   };
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (confirm("Do you want to logout?")) {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -135,12 +139,27 @@ export default function ProfilePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
 
-              {/* Mobile Dark Mode Toggle */}
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={() => handleLogout()}
                 className="md:hidden absolute top-3 right-3 p-2 bg-slate-900/60 backdrop-blur-md rounded-full text-white text-xs"
               >
-                {darkMode ? "☀️" : "🌙"}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  className="bi bi-box-arrow-left"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"
+                  />
+                </svg>
               </button>
             </div>
 
@@ -161,22 +180,34 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Edit Profile Action */}
-             {CurrentUser && user && CurrentUser.Username === user.Username &&
-                <div className="space-x-4">
+                {user && CurrentUser &&
+                
+                CurrentUser.Username === user.Username ? (
+                  <div className="space-x-4">
+                    <button
+                      onClick={() => (window.location.href = "/create/post")}
+                      className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                    >
+                      Create Post
+                    </button>
+                    <button
+                      onClick={() => (window.location.href = "/edit/profile")}
+                      className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                    >
+                      Edit Profile
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => (window.location.href = "/create/post")}
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                    className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
+                      user.isFollowing
+                        ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
+                        : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
+                    }`}
                   >
-                    Create Post
+                    Follow
                   </button>
-                  <button
-                    onClick={() => (window.location.href = "/edit/profile")}
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
-                  >
-                    Edit Profile
-                  </button>
-                </div>
-                }
+                )}
               </div>
 
               {/* Identity & Bio */}
