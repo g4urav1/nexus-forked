@@ -106,7 +106,7 @@ export default function DesktopNav() {
         </NavLink>
 
         <NavLink
-          to={`/admin`}
+          to={`/user/${user.Username}`}
           className={({ isActive }) =>
             `flex flex-col items-center space-y-1 transition ${
               isActive

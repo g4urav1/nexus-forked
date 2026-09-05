@@ -8,24 +8,24 @@ export default function SearchPage() {
   // People List State
   const [people, setPeople] = useState([]);
 
-const searchPeople = async (e) => {
-  const query = e.target.value;
+  const searchPeople = async (e) => {
+    const query = e.target.value;
 
-  setSearchQuery(query);
+    setSearchQuery(query);
 
-  if (query.trim() === "") {
-    return setPeople([]);
-  }
+    if (query.trim() === "") {
+      return setPeople([]);
+    }
 
-  const response = await fetch(
-    `http://localhost:1111/searchUsers?searchQuery=${query}`
-  );
+    const response = await fetch(
+      `http://localhost:1111/searchUsers?searchQuery=${query}`,
+    );
 
-  const data = await response.json();
-  console.log(searchQuery);
+    const data = await response.json();
+    console.log(searchQuery);
 
-  setPeople(data);
-};
+    setPeople(data);
+  };
 
   // Toggle Follow State
   const toggleFollow = (_id) => {
@@ -98,7 +98,10 @@ const searchPeople = async (e) => {
                 people.map((person) => (
                   <div
                     key={person._id}
-                    className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex flex-col justify-between space-y-3 hover:border-indigo-500/30 transition"
+                    onClick={() =>
+                      (window.location.href = `/user/${person.Username}`)
+                    }
+                    className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex flex-col justify-between space-y-3 hover:border-indigo-500/30 transition cursor-pointer"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">

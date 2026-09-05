@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/context";
 
 
 
@@ -9,6 +11,9 @@ export default function MobileMenu() {
             navigate("/login")
         }
     }
+
+      const { user } = useContext(UserContext);
+
     return (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 px-6 py-2 flex justify-around items-center z-50">
             <NavLink
@@ -54,7 +59,7 @@ export default function MobileMenu() {
 
             </NavLink>
 
-            <NavLink to="/profile"
+            <NavLink  to={`/user/${user.Username}`}
                 end // Optional: Ensures exact matching for root path "/"
                 className={({ isActive }) =>
                     `flex flex-col items-center space-y-1 transition ${isActive

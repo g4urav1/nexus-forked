@@ -4,8 +4,9 @@ import {
   FaApple as Apple,
 } from "react-icons/fa";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/context";
 
 export default function LoginPage() {
   const [disable, setDisable] = useState(false);
@@ -13,6 +14,7 @@ export default function LoginPage() {
 
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
+  const {setUser} = useContext(UserContext)
 
   const navigate = useNavigate()
 
@@ -42,6 +44,7 @@ export default function LoginPage() {
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
+        setUser(data.user)
         navigate("/");
       } else {
         alert(data.message);

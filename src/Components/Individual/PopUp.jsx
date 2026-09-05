@@ -5,7 +5,7 @@ export default function Popup({ response, setShowPopup }) {
 
   const handleGoBack = () => {
     setShowPopup(false);
-    navigate("/profile");
+    navigate(-1);
   };
 
   return (

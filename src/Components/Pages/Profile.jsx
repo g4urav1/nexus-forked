@@ -3,14 +3,43 @@ import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { UserContext, UserPostContext } from "../context/context";
 import { Heart, User } from "lucide-react";
+import { useParams } from "react-router-dom";
 
 export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
 
-  const { UserPosts, setUserPosts } = useContext(UserPostContext);
+  const {Username}= useParams()
 
-  const { user } = useContext(UserContext);
+  const [UserPosts, setUserPosts] = useState([]);
+
+  const {user} = useContext(UserContext)
+  const [CurrentUser, setCurrentUser] = useState(null);
+
+  const getProfile = async () => {
+    try {
+      const response = await fetch(`http://localhost:1111/user/${Username}`, {
+        credentials: "include",
+      });
+      const data = await response.json();
+      
+      setCurrentUser(data.user);
+      setUserPosts(data.UserPosts);
+
+      
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+  }, [Username, UserPosts]);
+
+  useEffect(() => {
+  console.log("currentuser:", CurrentUser);
+}, [CurrentUser]);
+
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -122,49 +151,51 @@ export default function ProfilePage() {
                 <div className="relative">
                   <img
                     src={
-                      user?.Pfp ||
+                      CurrentUser?.Pfp ||
                       "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                     }
-                    alt={user?.Username || "loading..."}
+                    alt={CurrentUser?.Username || "loading..."}
                     className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover ring-4 ring-white dark:ring-slate-900 shadow-xl"
                   />
                   <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full absolute bottom-2 right-2"></span>
                 </div>
 
                 {/* Edit Profile Action */}
+             {CurrentUser && user && CurrentUser.Username === user.Username &&
                 <div className="space-x-4">
                   <button
-                    onClick={() => (window.location.href = "create/post")}
+                    onClick={() => (window.location.href = "/create/post")}
                     className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
                   >
                     Create Post
                   </button>
                   <button
-                    onClick={() => (window.location.href = "edit/profile")}
+                    onClick={() => (window.location.href = "/edit/profile")}
                     className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
                   >
                     Edit Profile
                   </button>
                 </div>
+                }
               </div>
 
               {/* Identity & Bio */}
               <div className="space-y-3">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                    {user?.Username || (
+                    {CurrentUser?.Username || (
                       <p className="animate-pulse">loading...</p>
                     )}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    {user?.Email || (
+                    {CurrentUser?.Email || (
                       <span className="animate-pulse">loading...</span>
                     )}
                   </p>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                  {user?.Bio || (
+                  {CurrentUser?.Bio || (
                     <span className="animate-pulse">loading...</span>
                   )}
                 </p>
@@ -229,7 +260,7 @@ export default function ProfilePage() {
                         d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
                       />
                     </svg>
-                    <span>{user?.Joined}</span>
+                    <span>{CurrentUser?.Joined}</span>
                   </div>
                 </div>
 
@@ -237,7 +268,7 @@ export default function ProfilePage() {
                 <div className="flex space-x-5 pt-1 text-xs sm:text-sm">
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {user?.FollowingCount}
+                      {CurrentUser?.FollowingCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Following
@@ -245,7 +276,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {user?.FollowersCount}
+                      {CurrentUser?.FollowersCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Followers
@@ -304,11 +335,11 @@ export default function ProfilePage() {
                       <div className="flex items-center space-x-3">
                         <img
                           src={
-                            user?.Pfp ||
+                            CurrentUser?.Pfp ||
                             "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                           }
                           alt={
-                            user?.Username || (
+                            CurrentUser?.Username || (
                               <p className="animate-pulse">loading...</p>
                             )
                           }
@@ -316,7 +347,7 @@ export default function ProfilePage() {
                         />
                         <div>
                           <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                            {user?.Username || (
+                            {CurrentUser?.Username || (
                               <p className="animate-pulse">loading...</p>
                             )}
                           </h4>
@@ -332,7 +363,7 @@ export default function ProfilePage() {
                     </p>
 
                     {post.Url && (
-                       <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+                      <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
                         <img
                           src={post.Url}
                           alt="Post media"

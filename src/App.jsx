@@ -20,7 +20,6 @@ export default function App() {
     { path: "/", element: <FeedPage /> },
     { path: "/auth", element: <AuthPages /> },
     { path: "/inbox", element: <MessagesPage /> },
-    { path: "/admin", element: <ProfilePage /> },
     { path: "/User/:Username", element: <ProfilePage /> },
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
