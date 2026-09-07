@@ -222,12 +222,12 @@ export default function FeedPage() {
                 onClick={() => {
                   console.log("CLICKED POST:", post);
                   console.log("POST ID:", post._id);
-                  window.location.href = (`/post/${post._id}`);
+                  window.location.href = `/post/${post._id}`;
                 }}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"
               >
                 {/* Author Info */}
-                <div  className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <img
                       src={

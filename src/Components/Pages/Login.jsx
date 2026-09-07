@@ -14,9 +14,9 @@ export default function LoginPage() {
 
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
-  const {setUser} = useContext(UserContext)
+  const { setUser } = useContext(UserContext);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!Email || !Password) {
@@ -27,10 +27,9 @@ export default function LoginPage() {
   }, [Email, Password]);
 
   const handleLogin = async () => {
-
     try {
       const response = await fetch("http://localhost:1111/login", {
-        credentials:"include",
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,7 +43,7 @@ export default function LoginPage() {
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
-        setUser(data.user)
+        setUser(data.user);
         navigate("/");
       } else {
         alert(data.message);
@@ -155,7 +154,7 @@ export default function LoginPage() {
             </div>
 
             <button
-            type="button"
+              type="button"
               onClick={() => {
                 handleLogin();
               }}
@@ -185,7 +184,10 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-gray-500">
             Don't have an account?
-            <a href="signup" className="ml-2 font-semibold text-pink-500 hover:underline">
+            <a
+              href="signup"
+              className="ml-2 font-semibold text-pink-500 hover:underline"
+            >
               Sign Up
             </a>
           </p>

@@ -19,8 +19,6 @@ export default function EditPage() {
     formData.append("image", Post);
     formData.append("caption", Caption);
 
-  
-
     try {
       const response = await fetch("http://localhost:1111/uploadmain", {
         credentials: "include",
@@ -33,7 +31,7 @@ export default function EditPage() {
       if (!response.ok) {
         alert(data.message);
       }
-      alert(data.message)
+      alert(data.message);
       console.log(data);
     } catch (error) {
       alert("something went wrong");

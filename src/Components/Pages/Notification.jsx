@@ -128,7 +128,10 @@ export default function NotificationPage() {
                   line-clamp-2
                 "
                           >
-                           <span className="font-bold text-white">{notify.NotificationBy}</span> {notify.NotificationMessage}
+                            <span className="font-bold text-white">
+                              {notify.NotificationBy}
+                            </span>{" "}
+                            {notify.NotificationMessage}
                           </h3>
 
                           <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
@@ -178,8 +181,6 @@ export default function NotificationPage() {
                         )}
                       </div>
                     </div>
-
-                
                   </div>
                 ))
               ) : (

@@ -93,15 +93,14 @@ export default function MobileMenu() {
           viewBox="0 0 24 24"
           strokeWidth="1.8"
         >
-            <path
-              d="M20.84 4.61C19.77 3.54 18.33 3 16.8 3C15.27 3 13.83 3.54 12.76 4.61L12 5.37L11.24 4.61C10.17 3.54 8.73 3 7.2 3C5.67 3 4.23 3.54 3.16 4.61C0.95 6.82 0.95 10.4 3.16 12.61L12 21L20.84 12.61C23.05 10.4 23.05 6.82 20.84 4.61Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+          <path
+            d="M20.84 4.61C19.77 3.54 18.33 3 16.8 3C15.27 3 13.83 3.54 12.76 4.61L12 5.37L11.24 4.61C10.17 3.54 8.73 3 7.2 3C5.67 3 4.23 3.54 3.16 4.61C0.95 6.82 0.95 10.4 3.16 12.61L12 21L20.84 12.61C23.05 10.4 23.05 6.82 20.84 4.61Z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-
       </NavLink>
 
       <NavLink

@@ -180,8 +180,8 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Edit Profile Action */}
-                {user && CurrentUser &&
-                
+                {user &&
+                CurrentUser &&
                 CurrentUser.Username === user.Username ? (
                   <div className="space-x-4">
                     <button
