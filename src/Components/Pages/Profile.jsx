@@ -16,14 +16,25 @@ export default function ProfilePage() {
   const { admin, setAdmin } = useContext(AdminContext);
   const [accountUser, setAccountUser] = useState(null);
 
+  const [isFollowing, setIsFollowing] = useState(false);
+
   const getProfile = async () => {
     try {
       const response = await fetch(`http://localhost:1111/user/${Username}`, {
         credentials: "include",
       });
+
       const data = await response.json();
 
+      if (!response.ok) {
+        console.error(data.message);
+        return;
+      }
+
       setAccountUser(data.user);
+
+      setIsFollowing(data.isFollowing);
+
       setUserPosts(data.UserPosts);
     } catch (error) {
       console.error(error);
@@ -111,45 +122,45 @@ export default function ProfilePage() {
     }
   };
 
- const handleFollow = async (userId) => {
-        console.log("handleFollow CALLED");
-        console.log("userId:", userId);
+  const handleFollow = async (userId) => {
+    console.log("handleFollow CALLED");
+    console.log("userId:", userId);
 
-        try {
-          const response = await fetch("http://localhost:1111/follow", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              UserId: userId,
-            }),
-          });
+    try {
+      const response = await fetch("http://localhost:1111/follow", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UserId: userId,
+        }),
+      });
 
-          console.log("Response received:", response.status);
+      console.log("Response received:", response.status);
 
-          const data = await response.json();
+      const data = await response.json();
 
-          console.log("Follow response:", data);
+      console.log("Follow response:", data);
 
-          if (!response.ok) {
-            alert(data.message || "Something went wrong");
-            return;
-          }
+      if (!response.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
 
-          console.log("FOLLOW SUCCESS");
+      console.log("FOLLOW SUCCESS");
 
-          setAdmin({
-            ...admin,
-            isFollowing: data.isFollowing,
-            Followers: data.Followers,
-            FollowersCount: data.Followers.length,
-          });
-        } catch (error) {
-          console.error("Follow error:", error);
-        }
-      };
+      setAdmin({
+        ...admin,
+        isFollowing: data.isFollowing,
+        Followers: data.Followers,
+        FollowersCount: data.Followers.length,
+      });
+    } catch (error) {
+      console.error("Follow error:", error);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -240,15 +251,14 @@ export default function ProfilePage() {
                   <button
                     onClick={() => {
                       handleFollow(accountUser._id);
-                     
                     }}
                     className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                      admin.isFollowing
+                      isFollowing
                         ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
                         : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
                     }`}
                   >
-                    {admin.isFollowing ? "UnFollow" : "Follow"}
+                    {isFollowing ? "UnFollow" : "Follow"}
                   </button>
                 )}
               </div>
@@ -317,7 +327,9 @@ export default function ProfilePage() {
                       rel="noreferrer"
                       className="text-indigo-600 dark:text-indigo-400 hover:underline"
                     >
-                      {userArr?.website ? userArr.website.replace("https://", "") : "No website"}
+                      {userArr?.website
+                        ? userArr.website.replace("https://", "")
+                        : "No website"}
                     </a>
                   </div>
                   <div className="flex items-center space-x-1">

@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
+import { AdminContext } from "../context/context";
 
 export default function SearchPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   // People List State
   const [people, setPeople] = useState([]);
+
+  const { admin, setAdmin } = useContext(AdminContext);
 
   const searchPeople = async (e) => {
     const query = e.target.value;
@@ -19,23 +22,57 @@ export default function SearchPage() {
 
     const response = await fetch(
       `http://localhost:1111/searchUsers?searchQuery=${query}`,
+      {
+        credentials: "include",
+      },
     );
 
     const data = await response.json();
     console.log(searchQuery);
 
     setPeople(data);
+ 
   };
 
-  // Toggle Follow State
-  const toggleFollow = (_id) => {
-    setPeople(
-      people.map((person) =>
-        person._id === _id
-          ? { ...person, isFollowing: !person.isFollowing }
-          : person,
-      ),
-    );
+
+ const handleFollow = async (e, userId) => {
+    console.log("handleFollow CALLED");
+    console.log("userId:", userId);
+    e.stopPropagation()
+    try {
+      const response = await fetch("http://localhost:1111/follow", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UserId: userId,
+        }),
+      });
+
+      console.log("Response received:", response.status);
+
+      const data = await response.json();
+
+      console.log("Follow response:", data);
+
+      if (!response.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
+
+      console.log("FOLLOW SUCCESS");
+
+      setAdmin({
+        ...admin,
+        isFollowing: data.isFollowing,
+        Followers: data.Followers,
+        FollowersCount: data.Followers.length,
+      });
+    } catch (error) {
+      console.error("Follow error:", error);
+    }
   };
 
   return (
@@ -124,16 +161,21 @@ export default function SearchPage() {
                       </div>
 
                       {/* Follow / Unfollow Button */}
-                      <button
-                        onClick={() => toggleFollow(person.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 ${
-                          person.isFollowing
-                            ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
-                            : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
-                        }`}
-                      >
-                        {person.isFollowing ? "Following" : "Follow"}
-                      </button>
+
+                      {person._id !== admin._id && (
+                        <button
+                          onClick={(e) => {
+                            handleFollow(e, person._id);
+                          }}
+                          className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
+                            person.isFollowing
+                              ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
+                              : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
+                          }`}
+                        >
+                          {person.isFollowing ? "UnFollow" : "Follow"}
+                        </button>
+                      )}
                     </div>
 
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">
