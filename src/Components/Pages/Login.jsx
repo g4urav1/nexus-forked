@@ -6,7 +6,7 @@ import {
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/context";
+import { AdminContext } from "../context/context";
 
 export default function LoginPage() {
   const [disable, setDisable] = useState(false);
@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
-  const { setUser } = useContext(UserContext);
+  const { setAdmin } = useContext(AdminContext);
 
   const navigate = useNavigate();
 
@@ -43,7 +43,7 @@ export default function LoginPage() {
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
-        setUser(data.user);
+        setAdmin(data.admin);
         navigate("/");
       } else {
         alert(data.message);

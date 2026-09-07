@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
-import { UserContext } from "../context/context";
+import { AdminContext } from "../context/context";
 
 export default function NotificationPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -46,7 +46,7 @@ export default function NotificationPage() {
     });
   };
 
-  const { user } = useContext(UserContext);
+  const { admin } = useContext(AdminContext);
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">

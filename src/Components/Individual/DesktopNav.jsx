@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
-import { UserContext } from "../context/context";
+import { AdminContext } from "../context/context";
 
 export default function DesktopNav() {
   const [darkMode, setDarkMode] = useState(true);
@@ -15,7 +15,7 @@ export default function DesktopNav() {
     }
   };
 
-  const { user } = useContext(UserContext);
+  const { admin } = useContext(AdminContext);
 
   return (
     <aside className="hidden md:flex md:w-20 xl:w-64 flex-col justify-between h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] sticky top-4 lg:top-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-4 shadow-sm shrink-0">
@@ -132,7 +132,7 @@ export default function DesktopNav() {
         </NavLink>
 
         <NavLink
-          to={`/user/${user.Username}`}
+          to={`/user/${admin.Username}`}
           className={({ isActive }) =>
             `flex flex-col items-center space-y-1 transition ${
               isActive

@@ -10,11 +10,11 @@ import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
 import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
-import { UserContext, UserPostContext } from "./Components/context/context";
+import { AdminContext, UserPostContext } from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
 
 export default function App() {
-  const [user, setUser] = useState("");
+  const [admin, setAdmin] = useState("");
   const [UserPosts, setUserPosts] = useState([]);
 
   const router = createBrowserRouter([
@@ -40,7 +40,7 @@ export default function App() {
       if (!response.ok) {
         window.location.href = "/login";
       }
-      setUser(data.user);
+      setAdmin(data.admin);
       setUserPosts(data.UserPosts);
     } catch (error) {
       console.error(error);
@@ -58,9 +58,9 @@ export default function App() {
 
   return (
     <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
-      <UserContext.Provider value={{ user, setUser }}>
+      <AdminContext.Provider value={{ admin, setAdmin }}>
         <RouterProvider router={router} />
-      </UserContext.Provider>
+      </AdminContext.Provider>
     </UserPostContext.Provider>
   );
 }

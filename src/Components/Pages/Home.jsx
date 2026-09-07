@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
-import { UserContext } from "../context/context";
+import { AdminContext } from "../context/context";
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function FeedPage() {
   const [darkMode, setDarkMode] = useState(true);
-  const { user } = useContext(UserContext);
+  const { admin } = useContext(AdminContext);
   const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
@@ -135,7 +135,7 @@ export default function FeedPage() {
                 <div className="flex gap-3">
                   <img
                     src={
-                      user?.Pfp ||
+                      admin?.Pfp ||
                       "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                     }
                     alt="Your Avatar"

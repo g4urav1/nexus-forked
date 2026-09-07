@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
-import { UserContext, UserPostContext } from "../context/context";
+import { AdminContext, UserPostContext } from "../context/context";
 import { Heart, User } from "lucide-react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 
@@ -13,8 +13,8 @@ export default function ProfilePage() {
 
   const [UserPosts, setUserPosts] = useState([]);
 
-  const { user } = useContext(UserContext);
-  const [CurrentUser, setCurrentUser] = useState(null);
+  const { admin, setAdmin } = useContext(AdminContext);
+  const [accountUser, setAccountUser] = useState(null);
 
   const getProfile = async () => {
     try {
@@ -23,7 +23,7 @@ export default function ProfilePage() {
       });
       const data = await response.json();
 
-      setCurrentUser(data.user);
+      setAccountUser(data.user);
       setUserPosts(data.UserPosts);
     } catch (error) {
       console.error(error);
@@ -34,9 +34,7 @@ export default function ProfilePage() {
     getProfile();
   }, [Username, UserPosts]);
 
-  useEffect(() => {
-    console.log("currentuser:", CurrentUser);
-  }, [CurrentUser]);
+  useEffect(() => {}, [accountUser]);
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -112,6 +110,47 @@ export default function ProfilePage() {
       console.error(error);
     }
   };
+
+ const handleFollow = async (userId) => {
+        console.log("handleFollow CALLED");
+        console.log("userId:", userId);
+
+        try {
+          const response = await fetch("http://localhost:1111/follow", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              UserId: userId,
+            }),
+          });
+
+          console.log("Response received:", response.status);
+
+          const data = await response.json();
+
+          console.log("Follow response:", data);
+
+          if (!response.ok) {
+            alert(data.message || "Something went wrong");
+            return;
+          }
+
+          console.log("FOLLOW SUCCESS");
+
+          setAdmin({
+            ...admin,
+            isFollowing: data.isFollowing,
+            Followers: data.Followers,
+            FollowersCount: data.Followers.length,
+          });
+        } catch (error) {
+          console.error("Follow error:", error);
+        }
+      };
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -170,19 +209,19 @@ export default function ProfilePage() {
                 <div className="relative">
                   <img
                     src={
-                      CurrentUser?.Pfp ||
+                      accountUser?.Pfp ||
                       "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                     }
-                    alt={CurrentUser?.Username || "loading..."}
+                    alt={accountUser?.Username || "loading..."}
                     className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover ring-4 ring-white dark:ring-slate-900 shadow-xl"
                   />
                   <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full absolute bottom-2 right-2"></span>
                 </div>
 
                 {/* Edit Profile Action */}
-                {user &&
-                CurrentUser &&
-                CurrentUser.Username === user.Username ? (
+                {admin &&
+                accountUser &&
+                accountUser.Username === admin.Username ? (
                   <div className="space-x-4">
                     <button
                       onClick={() => (window.location.href = "/create/post")}
@@ -199,13 +238,17 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <button
+                    onClick={() => {
+                      handleFollow(accountUser._id);
+                     
+                    }}
                     className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                      user.isFollowing
+                      admin.isFollowing
                         ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
                         : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
                     }`}
                   >
-                    Follow
+                    {admin.isFollowing ? "UnFollow" : "Follow"}
                   </button>
                 )}
               </div>
@@ -214,19 +257,19 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                    {CurrentUser?.Username || (
+                    {accountUser?.Username || (
                       <p className="animate-pulse">loading...</p>
                     )}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    {CurrentUser?.Email || (
+                    {accountUser?.Email || (
                       <span className="animate-pulse">loading...</span>
                     )}
                   </p>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                  {CurrentUser?.Bio || (
+                  {accountUser?.Bio || (
                     <span className="animate-pulse">loading...</span>
                   )}
                 </p>
@@ -252,7 +295,7 @@ export default function ProfilePage() {
                         d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
                       />
                     </svg>
-                    <span>{userArr.location}</span>
+                    <span>{userArr?.location}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <svg
@@ -269,12 +312,12 @@ export default function ProfilePage() {
                       />
                     </svg>
                     <a
-                      href={userArr.website}
+                      href={userArr?.website}
                       target="_blank"
                       rel="noreferrer"
                       className="text-indigo-600 dark:text-indigo-400 hover:underline"
                     >
-                      {userArr.website.replace("https://", "")}
+                      {userArr?.website ? userArr.website.replace("https://", "") : "No website"}
                     </a>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -291,7 +334,7 @@ export default function ProfilePage() {
                         d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
                       />
                     </svg>
-                    <span>{CurrentUser?.Joined}</span>
+                    <span>{accountUser?.Joined}</span>
                   </div>
                 </div>
 
@@ -299,7 +342,7 @@ export default function ProfilePage() {
                 <div className="flex space-x-5 pt-1 text-xs sm:text-sm">
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {CurrentUser?.FollowingCount}
+                      {accountUser?.FollowingCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Following
@@ -307,7 +350,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 dark:text-white">
-                      {CurrentUser?.FollowersCount}
+                      {accountUser?.FollowersCount}
                     </span>{" "}
                     <span className="text-slate-500 dark:text-slate-400">
                       Followers
@@ -366,11 +409,11 @@ export default function ProfilePage() {
                       <div className="flex items-center space-x-3">
                         <img
                           src={
-                            CurrentUser?.Pfp ||
+                            accountUser?.Pfp ||
                             "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                           }
                           alt={
-                            CurrentUser?.Username || (
+                            accountUser?.Username || (
                               <p className="animate-pulse">loading...</p>
                             )
                           }
@@ -378,7 +421,7 @@ export default function ProfilePage() {
                         />
                         <div>
                           <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                            {CurrentUser?.Username || (
+                            {accountUser?.Username || (
                               <p className="animate-pulse">loading...</p>
                             )}
                           </h4>
