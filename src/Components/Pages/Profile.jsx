@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [accountUser, setAccountUser] = useState(null);
 
   const [isFollowing, setIsFollowing] = useState(false);
+  const [likedPosts, setLikedPosts] = useState([]);
 
   const getProfile = async () => {
     try {
@@ -36,6 +37,8 @@ export default function ProfilePage() {
       setIsFollowing(data.isFollowing);
 
       setUserPosts(data.UserPosts);
+
+      getLikedPosts();
     } catch (error) {
       console.error(error);
     }
@@ -43,8 +46,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getProfile();
-  }, [Username, UserPosts]);
-
+  }, [Username]);
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -157,6 +159,30 @@ export default function ProfilePage() {
   const handleLogout = () => {
     if (confirm("Do you want to logout?")) {
       navigate("/login");
+    }
+  };
+
+  const getLikedPosts = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:1111/likedPosts/${Username}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message);
+        return;
+      }
+
+      setLikedPosts(data.result);
+
+      console.log(likedPosts);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -311,16 +337,6 @@ export default function ProfilePage() {
                         d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
                       />
                     </svg>
-                    <a
-                      href={userArr?.website}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-indigo-600 dark:text-indigo-400 hover:underline"
-                    >
-                      {userArr?.website
-                        ? userArr.website.replace("https://", "")
-                        : "No website"}
-                    </a>
                   </div>
                   <div className="flex items-center space-x-1">
                     <svg
@@ -342,7 +358,12 @@ export default function ProfilePage() {
 
                 {/* Follower Stats */}
                 <div className="flex space-x-5 pt-1 text-xs sm:text-sm">
-                  <div>
+                  <div
+                    onClick={() =>
+                      (window.location.href = `/Following/${Username}`)
+                    }
+                    className="cursor-pointer"
+                  >
                     <span className="font-bold text-slate-900 dark:text-white">
                       {accountUser?.FollowingCount}
                     </span>{" "}
@@ -350,7 +371,12 @@ export default function ProfilePage() {
                       Following
                     </span>
                   </div>
-                  <div onClick={() => (window.location.href = `/Followers/${Username}`)} className="cursor-pointer">
+                  <div
+                    onClick={() =>
+                      (window.location.href = `/Followers/${Username}`)
+                    }
+                    className="cursor-pointer"
+                  >
                     <span className="font-bold text-slate-900 dark:text-white">
                       {accountUser?.FollowersCount}
                     </span>{" "}
@@ -500,11 +526,34 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {activeTab === "likes" && (
-                <div className="text-center py-8 text-xs text-slate-400">
-                  Liked posts will appear here.
-                </div>
-              )}
+              {activeTab === "likes" &&
+                likedPosts.length === 0 &&
+                "NO Liked POSTS YET!"}
+
+              {activeTab === "likes" &&
+                likedPosts.length > 0 &&
+                likedPosts.map((post) => (
+                  <article
+                    key={post.id}
+                    onClick={() => {
+                      console.log("CLICKED POST:", post);
+                      console.log("POST ID:", post.id);
+
+                      window.location.href = `/post/${post.id}`;
+                    }}
+                    className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"
+                  >
+                    {post.url && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+                        <img
+                          src={post.url}
+                          alt="Post media"
+                          className="w-full h-auto object-contain"
+                        />
+                      </div>
+                    )}
+                  </article>
+                ))}
             </div>
           </main>
 

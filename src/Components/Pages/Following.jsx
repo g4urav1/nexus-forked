@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
   const [darkMode] = useState(true);
-  const [followers, setFollowers] = useState([]);
+  const [following, setfollowing] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { Username } = useParams();
@@ -14,83 +14,88 @@ export default function ProfilePage() {
 
   const { admin, setAdmin } = useContext(AdminContext);
 
-  const handleFollow = async (userId, e) => {
-    e.stopPropagation();
+ const handleFollow = async (userId, e) => {
+  e.stopPropagation();
 
-    try {
-      const response = await fetch("http://localhost:1111/follow", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          UserId: userId,
-        }),
-      });
+  try {
+    const response = await fetch("http://localhost:1111/follow", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        UserId: userId,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.message || "Something went wrong");
-        return;
-      }
-
-      setfollowing((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? {
-                ...user,
-                isFollowing: data.isFollowing,
-              }
-            : user,
-        ),
-      );
-
-      setAdmin({
-        ...admin,
-        isFollowing: data.isFollowing,
-        Followers: data.Followers,
-        FollowersCount: data.Followers.length,
-      });
-    } catch (error) {
-      console.error("Follow error:", error);
+    if (!response.ok) {
+      alert(data.message || "Something went wrong");
+      return;
     }
-  };
 
-  const getfollowers = async () => {
-    try {
-      setLoading(true);
+    setfollowing((prev) =>
+      prev.map((user) =>
+        user.id === userId
+          ? {
+              ...user,
+              isFollowing: data.isFollowing,
+            }
+          : user
+      )
+    );
 
-      const response = await fetch(
-        `http://localhost:1111/getFollowers/${encodeURIComponent(Username)}`,
-        {
-          credentials: "include",
-        },
-      );
+    setAdmin({
+      ...admin,
+      isFollowing: data.isFollowing,
+      Followers: data.Followers,
+      FollowersCount: data.Followers.length,
+    });
+  } catch (error) {
+    console.error("Follow error:", error);
+  }
+};
 
-      const data = await response.json();
 
-      if (!response.ok) {
-        console.error(data.message);
-        setFollowers([]);
-        return;
+ 
+    const getfollowing = async () => {
+      try {
+        setLoading(true);
+
+        const response = await fetch(
+          `http://localhost:1111/getFollowing/${encodeURIComponent(Username)}`,
+          {
+            credentials: "include",
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error(data.message);
+          setfollowing([]);
+          return;
+        }
+
+        setfollowing(data.result);
+
+        console.log("following: ", following);
+      } catch (error) {
+        console.error("Failed to get following:", error);
+        setfollowing([]);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setFollowers(data.result);
+    
+    useEffect(() => {
+  getfollowing();
+}, [Username]);
 
-      console.log("Followers: ", followers);
-    } catch (error) {
-      console.error("Failed to get Followers:", error);
-      setFollowers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getfollowers();
-  }, [Username]);
+  
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -102,48 +107,50 @@ export default function ProfilePage() {
             <div className="p-4">
               {loading ? (
                 <div className="text-center py-12 text-slate-400 text-sm">
-                  Loading followers...
+                  Loading following...
                 </div>
-              ) : followers.length > 0 ? (
+              ) : following.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {followers.map((follower) => (
+                  {following.map((followingIds) => (
                     <div
-                      key={follower.id}
-                      onClick={() => navigate(`/user/${follower.Follower}`)}
+                      key={followingIds.id}
+                      onClick={() =>
+                        navigate(`/user/${followingIds.Following}`)
+                      }
                       className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex items-center justify-between hover:border-indigo-500/30 transition cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <img
                           src={
-                            follower?.FollowerPfp ||
+                            followingIds?.FollowingPfp ||
                             "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                           }
-                          alt={follower.Follower}
+                          alt={followingIds.Following}
                           className="w-12 h-12 rounded-full object-cover"
                         />
 
                         <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                          {follower.Follower}
+                          {followingIds.Following}
                         </h3>
                       </div>
                       <button
                         onClick={(e) => {
-                          handleFollow(follower.id, e);
+                          handleFollow(followingIds.id,e);
                         }}
                         className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                          follower.isFollowing
+                          followingIds.isFollowing
                             ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
                             : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
                         }`}
                       >
-                        {follower.isFollowing ? "UnFollow" : "Follow"}
+                        {followingIds.isFollowing ? "UnFollow" : "Follow"}
                       </button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-12 text-slate-400 text-sm">
-                  No followers found.
+                  No following found.
                 </div>
               )}
             </div>

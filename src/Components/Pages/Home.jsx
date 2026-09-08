@@ -21,9 +21,46 @@ export default function FeedPage() {
 
     console.log(data);
   };
+
+  const handleCreatePost = async () => {
+    if (!NewPost) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", NewPost);
+    formData.append("caption", Caption);
+
+    setSending(true);
+
+    try {
+      const response = await fetch("http://localhost:1111/uploadmain", {
+        credentials: "include",
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+      }
+      getFeed();
+    } catch (error) {
+      alert("something went wrong");
+      console.error(error);
+    } finally {
+      setSending(false);
+      setNewPost(null);
+      setPreview(null);
+      setCaption("");
+    }
+  };
+
   useEffect(() => {
     getFeed();
   }, []);
+
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
 
@@ -49,41 +86,6 @@ export default function FeedPage() {
   const [Caption, setCaption] = useState("");
   const [preview, setPreview] = useState(null);
   const [sending, setSending] = useState(false);
-
-  const handleCreatePost = async () => {
-    if (!NewPost) {
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("image", NewPost);
-    formData.append("caption", Caption);
-
-    setSending(true);
-
-    try {
-      const response = await fetch("http://localhost:1111/uploadmain", {
-        credentials: "include",
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-      }
-      alert("post uploaded");
-    } catch (error) {
-      alert("something went wrong");
-      console.error(error);
-    } finally {
-      setSending(false);
-      setNewPost(null);
-      setPreview(null);
-      setCaption("");
-    }
-  };
 
   const handleLike = async (postId) => {
     try {
@@ -128,7 +130,7 @@ export default function FeedPage() {
           {/* ================= 1. SIDEBAR NAVIGATION ================= */}
           <DesktopNav />
           {/* ================= 2. MAIN FEED STREAM ================= */}
-          <main className="flex-1 max-w-2xl space-y-5">
+          <main className="flex-1 max-w-2xl space-y-5 mb-10">
             {/* --- CREATE POST CARD --- */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800/80 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
               <form>
