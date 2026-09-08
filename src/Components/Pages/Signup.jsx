@@ -124,7 +124,11 @@ export default function SignupPage() {
               type="text"
               value={Username}
               onChange={(e) => {
-                setUsername(e.target.value);
+                const username = e.target.value
+                  .toLowerCase()
+                  .replace(/ /g, "_");
+
+                setUsername(username);
                 usernameAvailability(e);
               }}
               placeholder="Username"

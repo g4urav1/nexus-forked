@@ -12,6 +12,7 @@ import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
 import { AdminContext, UserPostContext } from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
+import FollowersPage from "./Components/Pages/Followers";
 
 export default function App() {
   const [admin, setAdmin] = useState("");
@@ -29,6 +30,7 @@ export default function App() {
     { path: "/edit/profile", element: <EditPage /> },
     { path: "/create/post", element: <CreatePostPage /> },
     { path: "/post/:id", element: <Post /> },
+    { path: "/Followers/:Username", element: <FollowersPage /> },
   ]);
 
   const loadUser = async () => {

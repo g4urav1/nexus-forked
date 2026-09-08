@@ -45,7 +45,6 @@ export default function ProfilePage() {
     getProfile();
   }, [Username, UserPosts]);
 
-  useEffect(() => {}, [accountUser]);
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -123,9 +122,6 @@ export default function ProfilePage() {
   };
 
   const handleFollow = async (userId) => {
-    console.log("handleFollow CALLED");
-    console.log("userId:", userId);
-
     try {
       const response = await fetch("http://localhost:1111/follow", {
         method: "POST",
@@ -138,18 +134,12 @@ export default function ProfilePage() {
         }),
       });
 
-      console.log("Response received:", response.status);
-
       const data = await response.json();
-
-      console.log("Follow response:", data);
 
       if (!response.ok) {
         alert(data.message || "Something went wrong");
         return;
       }
-
-      console.log("FOLLOW SUCCESS");
 
       setAdmin({
         ...admin,
@@ -360,7 +350,7 @@ export default function ProfilePage() {
                       Following
                     </span>
                   </div>
-                  <div>
+                  <div onClick={() => (window.location.href = `/Followers/${Username}`)} className="cursor-pointer">
                     <span className="font-bold text-slate-900 dark:text-white">
                       {accountUser?.FollowersCount}
                     </span>{" "}
