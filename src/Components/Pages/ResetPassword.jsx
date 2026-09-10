@@ -33,10 +33,6 @@ export default function ForgetPasswordPage() {
   }, [UserName]);
 
   const getCode = async () => {
-    
-    if (UserName.trim()== ""){
-      return alert("Enter Username first")
-    }
     setSending(true)
     try {
       const response = await fetch("http://localhost:1111/getCode", {
@@ -209,7 +205,7 @@ export default function ForgetPasswordPage() {
                 onClick={() => {
                   getCode();
                 }}
-                className={`w-full flex justify-center rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
+                className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
               >
                 {sending ? (
                       <div className="h-5 w-5 animate-spin   rounded-full border-l-[2px] border-b-[1.5px] border-r-[1px] border-text border-t-transparent"></div>

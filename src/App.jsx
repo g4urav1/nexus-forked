@@ -6,6 +6,7 @@ import ProfilePage from "./Components/Pages/Profile";
 import SearchPage from "./Components/Pages/Search";
 import LoginPage from "./Components/Pages/Login";
 import ForgetPasswordPage from "./Components/Pages/ForgetPassword";
+import ResetPasswordPage from "./Components/Pages/ResetPassword";
 import SignupPage from "./Components/Pages/Signup";
 import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
@@ -28,6 +29,7 @@ export default function App() {
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/forget-password", element: <ForgetPasswordPage /> },
+    { path: "/reset-password", element: <ResetPasswordPage /> },
     { path: "/signup", element: <SignupPage /> },
     { path: "/notification", element: <NotificationPage /> },
     { path: "/edit/profile", element: <EditPage /> },
