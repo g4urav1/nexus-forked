@@ -179,8 +179,6 @@ export default function ProfilePage() {
       }
 
       setLikedPosts(data.result);
-
-      console.log(likedPosts);
     } catch (error) {
       console.error(error);
     }
@@ -302,42 +300,6 @@ export default function ProfilePage() {
 
                 {/* Meta details */}
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500 dark:text-slate-400 pt-1">
-                  <div className="flex items-center space-x-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                      />
-                    </svg>
-                    <span>{userArr?.location}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
-                      />
-                    </svg>
-                  </div>
                   <div className="flex items-center space-x-1">
                     <svg
                       className="w-4 h-4"
@@ -530,30 +492,32 @@ export default function ProfilePage() {
                 likedPosts.length === 0 &&
                 "NO Liked POSTS YET!"}
 
-              {activeTab === "likes" &&
-                likedPosts.length > 0 &&
-                likedPosts.map((post) => (
-                  <article
-                    key={post.id}
-                    onClick={() => {
-                      console.log("CLICKED POST:", post);
-                      console.log("POST ID:", post.id);
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {activeTab === "likes" &&
+                  likedPosts.length > 0 &&
+                  likedPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      onClick={() => {
+                        console.log("CLICKED POST:", post);
+                        console.log("POST ID:", post.id);
 
-                      window.location.href = `/post/${post.id}`;
-                    }}
-                    className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"
-                  >
-                    {post.url && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
-                        <img
-                          src={post.url}
-                          alt="Post media"
-                          className="w-full h-auto object-contain"
-                        />
-                      </div>
-                    )}
-                  </article>
-                ))}
+                        window.location.href = `/post/${post.id}`;
+                      }}
+                      className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800"
+                    >
+                      {post.url && (
+                        <div  className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800">
+                          <img
+                            src={post.url}
+                            alt="Post media"
+                            className="w-full h-full object-cover hover:scale-105 transition duration-300"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
             </div>
           </main>
 

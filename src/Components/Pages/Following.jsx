@@ -14,88 +14,83 @@ export default function ProfilePage() {
 
   const { admin, setAdmin } = useContext(AdminContext);
 
- const handleFollow = async (userId, e) => {
-  e.stopPropagation();
+  const handleFollow = async (userId, e) => {
+    e.stopPropagation();
 
-  try {
-    const response = await fetch("http://localhost:1111/follow", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        UserId: userId,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:1111/follow", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UserId: userId,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      alert(data.message || "Something went wrong");
-      return;
-    }
-
-    setfollowing((prev) =>
-      prev.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              isFollowing: data.isFollowing,
-            }
-          : user
-      )
-    );
-
-    setAdmin({
-      ...admin,
-      isFollowing: data.isFollowing,
-      Followers: data.Followers,
-      FollowersCount: data.Followers.length,
-    });
-  } catch (error) {
-    console.error("Follow error:", error);
-  }
-};
-
-
- 
-    const getfollowing = async () => {
-      try {
-        setLoading(true);
-
-        const response = await fetch(
-          `http://localhost:1111/getFollowing/${encodeURIComponent(Username)}`,
-          {
-            credentials: "include",
-          },
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error(data.message);
-          setfollowing([]);
-          return;
-        }
-
-        setfollowing(data.result);
-
-        console.log("following: ", following);
-      } catch (error) {
-        console.error("Failed to get following:", error);
-        setfollowing([]);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        alert(data.message || "Something went wrong");
+        return;
       }
-    };
 
-    
-    useEffect(() => {
-  getfollowing();
-}, [Username]);
+      setfollowing((prev) =>
+        prev.map((user) =>
+          user.id === userId
+            ? {
+                ...user,
+                isFollowing: data.isFollowing,
+              }
+            : user,
+        ),
+      );
 
-  
+      setAdmin({
+        ...admin,
+        isFollowing: data.isFollowing,
+        Followers: data.Followers,
+        FollowersCount: data.Followers.length,
+      });
+    } catch (error) {
+      console.error("Follow error:", error);
+    }
+  };
+
+  const getfollowing = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `http://localhost:1111/getFollowing/${encodeURIComponent(Username)}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message);
+        setfollowing([]);
+        return;
+      }
+
+      setfollowing(data.result);
+
+      console.log("following: ", following);
+    } catch (error) {
+      console.error("Failed to get following:", error);
+      setfollowing([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getfollowing();
+  }, [Username]);
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -133,18 +128,20 @@ export default function ProfilePage() {
                           {followingIds.Following}
                         </h3>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          handleFollow(followingIds.id,e);
-                        }}
-                        className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                          followingIds.isFollowing
-                            ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
-                            : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
-                        }`}
-                      >
-                        {followingIds.isFollowing ? "UnFollow" : "Follow"}
-                      </button>
+                      {followingIds.id !== admin._id && (
+                        <button
+                          onClick={(e) => {
+                            handleFollow(followingIds.id, e);
+                          }}
+                          className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
+                            followingIds.isFollowing
+                              ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
+                              : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
+                          }`}
+                        >
+                          {followingIds.isFollowing ? "UnFollow" : "Follow"}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

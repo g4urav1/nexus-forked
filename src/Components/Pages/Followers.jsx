@@ -35,8 +35,8 @@ export default function ProfilePage() {
         alert(data.message || "Something went wrong");
         return;
       }
-
-      setfollowing((prev) =>
+ 
+      setFollowers((prev) =>
         prev.map((user) =>
           user.id === userId
             ? {
@@ -126,18 +126,20 @@ export default function ProfilePage() {
                           {follower.Follower}
                         </h3>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          handleFollow(follower.id, e);
-                        }}
-                        className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                          follower.isFollowing
-                            ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
-                            : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
-                        }`}
-                      >
-                        {follower.isFollowing ? "UnFollow" : "Follow"}
-                      </button>
+                      {follower.id !== admin._id && (
+                        <button
+                          onClick={(e) => {
+                            handleFollow(follower.id, e);
+                          }}
+                          className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
+                            follower.isFollowing
+                              ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
+                              : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
+                          }`}
+                        >
+                          {follower.isFollowing ? "UnFollow" : "Follow"}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
