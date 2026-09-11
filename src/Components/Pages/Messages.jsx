@@ -9,63 +9,63 @@ export default function ResponsiveMessagesPage() {
   const [messageInput, setMessageInput] = useState("");
 
   const [conversations, setConversations] = useState([
-    {
-      id: 1,
-      name: "Sophia Martinez",
-      handle: "@sophiam",
-      avatar:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      online: true,
-      unreadCount: 0,
-      messages: [
-        {
-          id: 101,
-          sender: "them",
-          text: "Hey Alex! Have you checked out the new mobile layouts?",
-          time: "10:14 AM",
-        },
-        {
-          id: 102,
-          sender: "me",
-          text: "Yes! The responsive bottom bar and smooth transitions look super clean.",
-          time: "10:16 AM",
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "David K.",
-      handle: "@davidk_dev",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-      online: false,
-      unreadCount: 2,
-      messages: [
-        {
-          id: 201,
-          sender: "them",
-          text: "Are we supporting mobile gestures as well?",
-          time: "Yesterday",
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Elena Rostova",
-      handle: "@elena_dev",
-      avatar:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
-      online: true,
-      unreadCount: 0,
-      messages: [
-        {
-          id: 301,
-          sender: "them",
-          text: "Merged the latest CSS responsive patches!",
-          time: "Jul 20",
-        },
-      ],
-    },
+    // {
+    //   id: 1,
+    //   name: "Sophia Martinez",
+    //   handle: "@sophiam",
+    //   avatar:
+    //     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    //   online: true,
+    //   unreadCount: 0,
+    //   messages: [
+    //     {
+    //       id: 101,
+    //       sender: "them",
+    //       text: "Hey Alex! Have you checked out the new mobile layouts?",
+    //       time: "10:14 AM",
+    //     },
+    //     {
+    //       id: 102,
+    //       sender: "me",
+    //       text: "Yes! The responsive bottom bar and smooth transitions look super clean.",
+    //       time: "10:16 AM",
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 2,
+    //   name: "David K.",
+    //   handle: "@davidk_dev",
+    //   avatar:
+    //     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    //   online: false,
+    //   unreadCount: 2,
+    //   messages: [
+    //     {
+    //       id: 201,
+    //       sender: "them",
+    //       text: "Are we supporting mobile gestures as well?",
+    //       time: "Yesterday",
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 3,
+    //   name: "Elena Rostova",
+    //   handle: "@elena_dev",
+    //   avatar:
+    //     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+    //   online: true,
+    //   unreadCount: 0,
+    //   messages: [
+    //     {
+    //       id: 301,
+    //       sender: "them",
+    //       text: "Merged the latest CSS responsive patches!",
+    //       time: "Jul 20",
+    //     },
+    //   ],
+    // },
   ]);
 
   const activeChat = conversations.find((c) => c.id === activeChatId);

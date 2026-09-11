@@ -1,9 +1,8 @@
 import {
   FaInstagram as Instagram,
-  FaFacebookF as Facebook,
-  FaApple as Apple,
+
 } from "react-icons/fa";
-import { Mail, Lock, Eye, EyeOff, Key } from "lucide-react";
+import { Mail,  Key } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../context/context";
@@ -81,7 +80,9 @@ export default function ForgetPasswordPage() {
 
       const data = await response.json();
       if (response.ok) {
+        localStorage.setItem("Username", UserName)
         alert(data.message);
+        navigate("/reset-password")
       
       } else {
         alert(data.message);
@@ -175,30 +176,6 @@ export default function ForgetPasswordPage() {
                 className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 pl-11 pr-12 outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
-            {/* <div className="relative">
-              <Lock
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
-              />
-
-              <input
-                disabled={PasswordDisable}
-                title={PasswordDisable ? "enter code first" : ""}
-                type={showPassword ? "text" : "password"}
-                placeholder="New Password"
-                value={Password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 pl-11 pr-12 outline-none focus:ring-2 focus:ring-pink-500"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div> */}
 
             {btnDisable ? (
 

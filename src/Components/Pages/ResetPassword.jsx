@@ -6,79 +6,38 @@ import {
 import { Mail, Lock, Eye, EyeOff, Key } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AdminContext } from "../context/context";
 
 export default function ForgetPasswordPage() {
-  const [btnDisable, setBtnDisable] = useState(true);
-  const [codeDisable, setCodeDisable] = useState(false);
-  const [sending, setSending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [Password, setPassword] = useState("");
+  const [sending, setSending] = useState(false);
 
   const [UserName, setUserName] = useState("");
-  const [Code, setCode] = useState("");
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    if (!UserName) {
-      setCodeDisable(true);
-    } else {
-      setCodeDisable(false);
-    }
-  }, [UserName]);
-  useEffect(() => {
-    if (!UserName || !Code) {
-      setBtnDisable(true);
-    } else {
-      setBtnDisable(false);
-    }
+    setUserName(localStorage.getItem("Username"));
   }, [UserName]);
 
-  const getCode = async () => {
-    setSending(true)
+  const changePassword = async () => {
     try {
-      const response = await fetch("http://localhost:1111/getCode", {
+      const response = await fetch("http://localhost:1111/changePassword", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          UserName: UserName,
-        
+          UserName,
+          Password,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
-        setBtnDisable(false)
-      
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }finally{
-      setSending(false)
-    }
-  };
-
-
-  const verifyCode = async () => {
-    try {
-      const response = await fetch("http://localhost:1111/verifyCode", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          UserName: UserName,
-          Code: Code
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.message);
-      
+        localStorage.removeItem("Username")
+        navigate("/login");
       } else {
         alert(data.message);
       }
@@ -86,8 +45,6 @@ export default function ForgetPasswordPage() {
       console.log(error);
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-violet-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-black flex items-center justify-center px-4">
@@ -137,9 +94,9 @@ export default function ForgetPasswordPage() {
           <div className="text-center mb-10">
             <Instagram className="mx-auto text-pink-500" size={42} />
 
-            <h2 className="text-3xl font-bold mt-4">Forgot Your Password?</h2>
+            <h2 className="text-3xl font-bold mt-4">Reset Your Password?</h2>
 
-            <p className="text-gray-500 mt-2">Lets get back in.</p>
+            <p className="text-gray-500 mt-2">set new password.</p>
           </div>
 
           <form className="space-y-5">
@@ -147,39 +104,21 @@ export default function ForgetPasswordPage() {
               <Mail size={18} className="absolute left-4 top-4 text-gray-400" />
 
               <input
+                disabled
                 type="text"
                 placeholder="Username"
                 value={UserName}
-                onChange={(e) => setUserName(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pl-12 pr-4 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 dark:bg-zinc-800 dark:border-zinc-700"
+                className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pl-12 pr-4 outline-none  dark:bg-zinc-800 dark:border-zinc-700 text-white/70"
               />
             </div>
 
             <div className="relative">
-              <Key
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
-              />
-
-              <input
-              disabled={codeDisable}
-              title={codeDisable?"get code first": ""}
-                type="text"
-                placeholder="Code"
-                value={Code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 pl-11 pr-12 outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            {/* <div className="relative">
               <Lock
                 size={18}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
               />
 
               <input
-                disabled={PasswordDisable}
-                title={PasswordDisable ? "enter code first" : ""}
                 type={showPassword ? "text" : "password"}
                 placeholder="New Password"
                 value={Password}
@@ -194,36 +133,17 @@ export default function ForgetPasswordPage() {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
-            </div> */}
+            </div>
 
-            {btnDisable ? (
-
-                
-              <button
-                type="button"
-                disabled={sending}
-                onClick={() => {
-                  getCode();
-                }}
-                className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
-              >
-                {sending ? (
-                      <div className="h-5 w-5 animate-spin   rounded-full border-l-[2px] border-b-[1.5px] border-r-[1px] border-text border-t-transparent"></div>
-                    ) : (
-                      "Get Code"
-                    )}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  verifyCode();
-                }}
-                className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
-              >
-                verify
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                changePassword();
+              }}
+              className={`w-full rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
+            >
+              Change
+            </button>
           </form>
 
           <div className="flex items-center my-8">
