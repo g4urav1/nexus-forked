@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AdminContext } from "../context/context";
 
 export default function DesktopNav() {
@@ -9,10 +9,16 @@ export default function DesktopNav() {
   const [messageInput, setMessageInput] = useState("");
 
   const navigate = useNavigate();
-  const handleLogout = () => {
-    if (confirm("Do you want to logout?")) {
+  const handleLogout = async () => {
+    if (confirm("Do you want to Logout")) {
+      await fetch("http://localhost:1111/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
       navigate("/login");
     }
+    return;
   };
 
   const { admin } = useContext(AdminContext);

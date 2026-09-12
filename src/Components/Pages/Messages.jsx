@@ -1,104 +1,97 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 
 export default function ResponsiveMessagesPage() {
   const [darkMode, setDarkMode] = useState(true);
-  const [activeChatId, setActiveChatId] = useState(1);
-  const [mobileShowChat, setMobileShowChat] = useState(false); // Mobile state to switch between list & chat
+
+  const [adminId, setAdminId] = useState("");
+
+  const [activeChatId, setActiveChatId] = useState("");
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState("");
 
-  const [conversations, setConversations] = useState([
-    // {
-    //   id: 1,
-    //   name: "Sophia Martinez",
-    //   handle: "@sophiam",
-    //   avatar:
-    //     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    //   online: true,
-    //   unreadCount: 0,
-    //   messages: [
-    //     {
-    //       id: 101,
-    //       sender: "them",
-    //       text: "Hey Alex! Have you checked out the new mobile layouts?",
-    //       time: "10:14 AM",
-    //     },
-    //     {
-    //       id: 102,
-    //       sender: "me",
-    //       text: "Yes! The responsive bottom bar and smooth transitions look super clean.",
-    //       time: "10:16 AM",
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 2,
-    //   name: "David K.",
-    //   handle: "@davidk_dev",
-    //   avatar:
-    //     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    //   online: false,
-    //   unreadCount: 2,
-    //   messages: [
-    //     {
-    //       id: 201,
-    //       sender: "them",
-    //       text: "Are we supporting mobile gestures as well?",
-    //       time: "Yesterday",
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 3,
-    //   name: "Elena Rostova",
-    //   handle: "@elena_dev",
-    //   avatar:
-    //     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
-    //   online: true,
-    //   unreadCount: 0,
-    //   messages: [
-    //     {
-    //       id: 301,
-    //       sender: "them",
-    //       text: "Merged the latest CSS responsive patches!",
-    //       time: "Jul 20",
-    //     },
-    //   ],
-    // },
-  ]);
+  // Messages fetched from MongoDB
+  const [messages, setMessages] = useState([]);
 
-  const activeChat = conversations.find((c) => c.id === activeChatId);
+  // Loading state
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
+  const [loadingConversation, setLoadingConversation] = useState(false);
+  const [conversations, setConversations] = useState([]);
+
+  const activeChat = conversations.find((chat) => chat.id === activeChatId);
+
+  useEffect(() => {
+    const getConversation = async () => {
+      try {
+        setLoadingConversation(true);
+
+        const response = await fetch("http://localhost:1111/conversations", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const data = await response.json();
+
+        setConversations(data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        setConversations([]);
+      } finally {
+        setLoadingConversation(false);
+      }
+    };
+
+    getConversation();
+  }, []);
+
+  useEffect(() => {
+    if (!activeChatId) {
+      setMessages([]);
+      return;
+    }
+
+    const getMessages = async () => {
+      try {
+        setLoadingMessages(true);
+
+        const response = await fetch(
+          `http://localhost:1111/messages/${activeChatId}`,
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const data = await response.json();
+
+        setMessages(data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        setMessages([]);
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    getMessages();
+  }, [activeChatId]);
 
   const handleSelectChat = (id) => {
     setActiveChatId(id);
-    setMobileShowChat(true); // Open chat view on mobile
+    setMobileShowChat(true);
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!messageInput.trim()) return;
+  const formatMessageTime = (date) => {
+    if (!date) return "";
 
-    const newMessage = {
-      id: Date.now(),
-      sender: "me",
-      text: messageInput,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    setConversations(
-      conversations.map((chat) => {
-        if (chat.id === activeChatId) {
-          return { ...chat, messages: [...chat.messages, newMessage] };
-        }
-        return chat;
-      }),
-    );
-
-    setMessageInput("");
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -109,17 +102,25 @@ export default function ResponsiveMessagesPage() {
           {/* ================= 1. DESKTOP SIDEBAR / NAVIGATION ================= */}
 
           <DesktopNav />
+
           {/* ================= 2. MESSAGES CONTAINER ================= */}
+
           <main className="flex-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm flex h-[calc(100vh-5rem)] md:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)]">
-            {/* --- LEFT: CONVERSATIONS LIST (Hidden on mobile when chat is open) --- */}
+            {/* ================= LEFT: CONVERSATIONS ================= */}
+
             <div
-              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${mobileShowChat ? "hidden md:flex" : "flex"}`}
+              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${
+                mobileShowChat ? "hidden md:flex" : "flex"
+              }`}
             >
+              {/* Header */}
+
               <div className="p-3.5 sm:p-4 space-y-3 border-b border-slate-100 dark:border-slate-800/80">
                 <div className="flex items-center justify-between">
                   <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                     Messages
                   </h2>
+
                   <button
                     onClick={() => setDarkMode(!darkMode)}
                     className="md:hidden p-2 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400"
@@ -127,6 +128,8 @@ export default function ResponsiveMessagesPage() {
                     {darkMode ? "☀️" : "🌙"}
                   </button>
                 </div>
+
+                {/* Search */}
 
                 <div className="relative">
                   <svg
@@ -142,6 +145,7 @@ export default function ResponsiveMessagesPage() {
                       d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
                     />
                   </svg>
+
                   <input
                     type="text"
                     placeholder="Search chats..."
@@ -151,9 +155,9 @@ export default function ResponsiveMessagesPage() {
               </div>
 
               {/* Contacts */}
+
               <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50">
                 {conversations.map((chat) => {
-                  const lastMessage = chat.messages[chat.messages.length - 1];
                   const isActive = chat.id === activeChatId;
 
                   return (
@@ -166,28 +170,31 @@ export default function ResponsiveMessagesPage() {
                           : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
                       }`}
                     >
+                      {/* Avatar */}
+
                       <div className="relative shrink-0">
                         <img
                           src={chat.avatar}
                           alt={chat.name}
                           className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover"
                         />
+
                         {chat.online && (
                           <span className="w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full absolute bottom-0 right-0"></span>
                         )}
                       </div>
+
+                      {/* User information */}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
                           <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                             {chat.name}
                           </h4>
-                          <span className="text-[10px] text-slate-400">
-                            {lastMessage?.time}
-                          </span>
                         </div>
+
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                          {lastMessage ? lastMessage.text : "No messages yet"}
+                          {chat.handle}
                         </p>
                       </div>
                     </div>
@@ -196,15 +203,20 @@ export default function ResponsiveMessagesPage() {
               </div>
             </div>
 
-            {/* --- RIGHT: CHAT CONVERSATION VIEW (Full screen on mobile when open) --- */}
+            {/* ================= RIGHT: CHAT ================= */}
+
             {activeChat ? (
               <div
-                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${mobileShowChat ? "flex" : "hidden md:flex"}`}
+                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${
+                  mobileShowChat ? "flex" : "hidden md:flex"
+                }`}
               >
-                {/* Active Header with Mobile Back Button */}
+                {/* ================= CHAT HEADER ================= */}
+
                 <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
                   <div className="flex items-center space-x-2 sm:space-x-3">
-                    {/* MOBILE BACK BUTTON */}
+                    {/* Mobile back button */}
+
                     <button
                       onClick={() => setMobileShowChat(false)}
                       className="md:hidden p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-xl transition"
@@ -224,25 +236,34 @@ export default function ResponsiveMessagesPage() {
                       </svg>
                     </button>
 
+                    {/* Avatar */}
+
                     <div className="relative">
                       <img
                         src={activeChat.avatar}
                         alt={activeChat.name}
                         className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
                       />
+
                       {activeChat.online && (
                         <span className="w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full absolute bottom-0 right-0"></span>
                       )}
                     </div>
+
+                    {/* Name */}
+
                     <div>
                       <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
                         {activeChat.name}
                       </h3>
+
                       <span className="text-[10px] sm:text-[11px] text-slate-400">
                         {activeChat.online ? "Online" : "Offline"}
                       </span>
                     </div>
                   </div>
+
+                  {/* Call button */}
 
                   <div className="flex items-center space-x-1 sm:space-x-2 text-slate-400">
                     <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
@@ -263,38 +284,58 @@ export default function ResponsiveMessagesPage() {
                   </div>
                 </div>
 
-                {/* Message Log */}
+                {/* ================= MESSAGE LOG ================= */}
+
                 <div className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3">
-                  {activeChat.messages.map((msg) => {
-                    const isMe = msg.sender === "me";
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
-                      >
+                  {loadingMessages ? (
+                    <div className="flex justify-center items-center h-full">
+                      <p className="text-xs text-slate-400">
+                        Loading messages...
+                      </p>
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="flex justify-center items-center h-full">
+                      <p className="text-xs text-slate-400">No messages yet</p>
+                    </div>
+                  ) : (
+                    messages.map((msg) => {
+                      const isMe =
+                        Number(msg.user_id) === Number(currentUserId);
+
+                      return (
                         <div
-                          className={`max-w-[80%] sm:max-w-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-xs leading-relaxed ${
-                            isMe
-                              ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-none shadow-md shadow-indigo-500/10"
-                              : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-none border border-slate-200/80 dark:border-slate-700/80 shadow-sm"
+                          key={msg._id}
+                          className={`flex flex-col ${
+                            isMe ? "items-end" : "items-start"
                           }`}
                         >
-                          {msg.text}
+                          {/* Message */}
+
+                          <div
+                            className={`max-w-[80%] sm:max-w-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-xs leading-relaxed ${
+                              isMe
+                                ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-none shadow-md shadow-indigo-500/10"
+                                : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-none border border-slate-200/80 dark:border-slate-700/80 shadow-sm"
+                            }`}
+                          >
+                            {msg.content}
+                          </div>
+
+                          {/* Time */}
+
+                          <span className="text-[10px] text-slate-400 mt-1 px-1">
+                            {formatMessageTime(msg.created_at)}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-slate-400 mt-1 px-1">
-                          {msg.time}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
 
-                {/* Composer */}
+                {/* ================= COMPOSER ================= */}
+
                 <div className="p-2.5 sm:p-3 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800/80">
-                  <form
-                    onSubmit={handleSendMessage}
-                    className="flex items-center space-x-2"
-                  >
+                  <form className="flex items-center space-x-2">
                     <input
                       type="text"
                       value={messageInput}
@@ -323,10 +364,15 @@ export default function ResponsiveMessagesPage() {
                   </form>
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="hidden md:flex flex-1 items-center justify-center">
+                <p className="text-sm text-slate-400">Select a conversation</p>
+              </div>
+            )}
           </main>
 
-          {/* ================= 3. MOBILE BOTTOM NAVIGATION BAR ================= */}
+          {/* ================= 3. MOBILE BOTTOM NAVIGATION ================= */}
+
           <MobileMenu />
         </div>
       </div>
