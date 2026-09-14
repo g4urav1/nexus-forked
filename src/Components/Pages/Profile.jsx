@@ -262,6 +262,13 @@ export default function ProfilePage() {
                     </button>
                   </div>
                 ) : (
+                  <div className="space-x-4">
+                     <button
+                      onClick={() => (window.location.href = `/inbox/${accountUser._id}`)}
+                      className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
+                    >
+                 Message
+                    </button>
                   <button
                     onClick={() => {
                       handleFollow(accountUser._id);
@@ -273,7 +280,7 @@ export default function ProfilePage() {
                     }`}
                   >
                     {isFollowing ? "UnFollow" : "Follow"}
-                  </button>
+                  </button></div>
                 )}
               </div>
 

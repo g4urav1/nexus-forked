@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthPages from "./Components/Pages/Auth";
 import FeedPage from "./Components/Pages/Home";
 import MessagesPage from "./Components/Pages/Messages";
+import InboxPage from "./Components/Pages/Inbox";
 import ProfilePage from "./Components/Pages/Profile";
 import SearchPage from "./Components/Pages/Search";
 import LoginPage from "./Components/Pages/Login";
@@ -24,7 +25,8 @@ export default function App() {
   const router = createBrowserRouter([
     { path: "/", element: <FeedPage /> },
     { path: "/auth", element: <AuthPages /> },
-    { path: "/inbox", element: <MessagesPage /> },
+    { path: "/inbox", element: <InboxPage /> },
+    { path: "/inbox/:conversationId", element: <MessagesPage /> },
     { path: "/User/:Username", element: <ProfilePage /> },
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },

@@ -44,6 +44,7 @@ export default function LoginPage() {
       if (response.ok) {
         alert(data.message);
         setAdmin(data.admin);
+        localStorage.setItem("adminId", data.admin._id);
         navigate("/");
       } else {
         alert(data.message);
@@ -148,7 +149,10 @@ export default function LoginPage() {
                 Remember me
               </label>
 
-              <a href="forget-password" className="text-pink-500 hover:underline">
+              <a
+                href="forget-password"
+                className="text-pink-500 hover:underline"
+              >
                 Forgot Password?
               </a>
             </div>
