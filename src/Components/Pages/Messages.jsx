@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,6 +15,13 @@ export default function MessagesPage() {
   const [messageInput, setMessageInput] = useState("");
 
   const [messages, setMessages] = useState([]);
+
+  const messagesEndRef = useRef(null);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingConversation, setLoadingConversation] = useState(false);
@@ -94,8 +101,6 @@ export default function MessagesPage() {
         const data = await response.json();
 
         setMessages(data);
-
-        console.log("Messages:", data);
       } catch (error) {
         console.error(error);
         setMessages([]);
@@ -138,7 +143,9 @@ export default function MessagesPage() {
     return chat?.participants || [];
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+
     const content = messageInput.trim();
 
     if (!content || !activeChatId) {
@@ -146,13 +153,38 @@ export default function MessagesPage() {
     }
 
     try {
-      // Add your send-message API here
-      console.log({
-        conversationId: activeChatId,
-        content,
-      });
+      const response = await fetch(
+        `http://localhost:1111/sendMessages/${activeChatId}`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Failed to send message");
+        return;
+      }
 
       setMessageInput("");
+
+      const messagesResponse = await fetch(
+        `http://localhost:1111/messages/${activeChatId}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      if (messagesResponse.ok) {
+        const updatedMessages = await messagesResponse.json();
+        setMessages(updatedMessages);
+      }
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -423,6 +455,7 @@ export default function MessagesPage() {
                       );
                     })
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* ================= COMPOSER ================= */}

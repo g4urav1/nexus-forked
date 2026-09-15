@@ -15,7 +15,7 @@ export default function DesktopNav() {
         method: "POST",
         credentials: "include",
       });
-
+      localStorage.removeItem("adminId")
       navigate("/login");
     }
     return;

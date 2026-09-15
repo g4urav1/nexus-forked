@@ -19,6 +19,8 @@ export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [likedPosts, setLikedPosts] = useState([]);
 
+  const [conversationId, setConversationId] = useState("");
+
   const getProfile = async () => {
     try {
       const response = await fetch(`http://localhost:1111/user/${Username}`, {
@@ -37,6 +39,8 @@ export default function ProfilePage() {
       setIsFollowing(data.isFollowing);
 
       setUserPosts(data.UserPosts);
+
+      setConversationId(data.conversationId);
 
       getLikedPosts();
     } catch (error) {
@@ -156,10 +160,16 @@ export default function ProfilePage() {
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    if (confirm("Do you want to logout?")) {
+  const handleLogout = async () => {
+    if (confirm("Do you want to Logout")) {
+      await fetch("http://localhost:1111/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      localStorage.removeItem("adminId");
       navigate("/login");
     }
+    return;
   };
 
   const getLikedPosts = async () => {
@@ -263,24 +273,27 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="space-x-4">
-                     <button
-                      onClick={() => (window.location.href = `/inbox/${accountUser._id}`)}
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/inbox/${conversationId}`)
+                      }
                       className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 text-white font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95"
                     >
-                 Message
+                      Message
                     </button>
-                  <button
-                    onClick={() => {
-                      handleFollow(accountUser._id);
-                    }}
-                    className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
-                      isFollowing
-                        ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
-                        : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
-                    }`}
-                  >
-                    {isFollowing ? "UnFollow" : "Follow"}
-                  </button></div>
+                    <button
+                      onClick={() => {
+                        handleFollow(accountUser._id);
+                      }}
+                      className={`px-4 py-2 sm:px-5 sm:py-2.5 font-semibold rounded-2xl text-xs sm:text-sm transition shadow-md active:scale-95  ${
+                        isFollowing
+                          ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
+                          : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
+                      }`}
+                    >
+                      {isFollowing ? "UnFollow" : "Follow"}
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -514,7 +527,7 @@ export default function ProfilePage() {
                       className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800"
                     >
                       {post.url && (
-                        <div  className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800">
+                        <div className="aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-200/80 dark:border-slate-800">
                           <img
                             src={post.url}
                             alt="Post media"
