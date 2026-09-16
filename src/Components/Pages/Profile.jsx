@@ -213,6 +213,8 @@ export default function ProfilePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
 
+
+      
               <button
                 onClick={() => handleLogout()}
                 className="md:hidden absolute top-3 right-3 p-2 bg-slate-900/60 backdrop-blur-md rounded-full text-white text-xs"

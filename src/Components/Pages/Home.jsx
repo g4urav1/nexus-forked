@@ -147,7 +147,7 @@ export default function FeedPage() {
                     rows={3}
                     value={Caption}
                     onChange={(e) => setCaption(e.target.value)}
-                    placeholder="What's happening in your dev world?"
+                    placeholder="Create a new post?"
                     className="w-full resize-none border-none bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-0 pt-1"
                   />
                   {preview && (

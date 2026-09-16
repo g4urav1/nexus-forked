@@ -75,7 +75,6 @@ export default function MessagesPage() {
     getConversation();
   }, []);
 
-  // Get messages when active chat changes
   useEffect(() => {
     if (!activeChatId) {
       setMessages([]);
@@ -186,7 +185,7 @@ export default function MessagesPage() {
         setMessages(updatedMessages);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error( error);
     }
   };
 
@@ -276,8 +275,8 @@ export default function MessagesPage() {
                         onClick={() => handleSelectChat(chat.conversationId)}
                         className={`flex items-center space-x-3 p-3.5 cursor-pointer transition ${
                           isActive
-                            ? "bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-600 dark:border-indigo-400"
-                            : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                            ? "bg-indigo-950/40 shadow-[inset_2px_0_6px_-1px_#818cf8]"
+                            : "hover:bg-slate-800/40"
                         }`}
                       >
                         {/* ================= AVATARS ================= */}

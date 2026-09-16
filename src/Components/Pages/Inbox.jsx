@@ -59,10 +59,6 @@ export default function InboxPage() {
 
 
   const getChatName = (chat) => {
-    if (!chat?.participants?.length) {
-      return "Unknown Conversation";
-    }
-
     return chat.participants
       .map((user) => user.Username || "Unknown User")
       .join(", ");
@@ -159,7 +155,7 @@ export default function InboxPage() {
                         onClick={() => handleSelectChat(chat.conversationId)}
                         className={`flex items-center space-x-3 p-3.5 cursor-pointer transition ${
                           isActive
-                            ? "bg-indigo-950/40 shadow-[inset_4px_0_6px_-2px_#818cf8]"
+                            ? "bg-indigo-950/40 shadow-[4px_0_6px_-2px_#818cf8]"
                             : "hover:bg-slate-800/40"
                         }`}
                       >
@@ -174,7 +170,7 @@ export default function InboxPage() {
                                 "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg"
                               }
                               alt={user.Username || "User"}
-                              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-white dark:border-slate-900"
+                              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover"
                             />
                           ))}
                         </div>
