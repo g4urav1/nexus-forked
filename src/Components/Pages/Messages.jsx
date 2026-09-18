@@ -122,7 +122,22 @@ export default function MessagesPage() {
   const formatMessageTime = (date) => {
     if (!date) return "";
 
-    return new Date(date).toLocaleTimeString([], {
+    const messageDate = new Date(date);
+    const now = new Date();
+
+    const diffInHours = (now - messageDate) / (1000 * 60 * 60);
+
+    if (diffInHours >= 24) {
+      return messageDate.toLocaleDateString([], {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+         hour: "2-digit",
+      minute: "2-digit",
+      });
+    }
+
+    return messageDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -185,7 +200,7 @@ export default function MessagesPage() {
         setMessages(updatedMessages);
       }
     } catch (error) {
-      console.error( error);
+      console.error(error);
     }
   };
 

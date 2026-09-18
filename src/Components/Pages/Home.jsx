@@ -5,7 +5,7 @@ import { AdminContext } from "../context/context";
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function FeedPage() {
+export default function FeedPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
   const { admin } = useContext(AdminContext);
   const navigate = useNavigate();
@@ -21,6 +21,14 @@ export default function FeedPage() {
 
     console.log(data);
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("getFeed", () => {
+      getFeed();
+    });
+  }, [socket]);
 
   const handleCreatePost = async () => {
     if (!NewPost) {

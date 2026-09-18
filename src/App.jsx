@@ -17,13 +17,23 @@ import { AdminContext, UserPostContext } from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
 import FollowersPage from "./Components/Pages/Followers";
 import FollowingPage from "./Components/Pages/Following";
-
+import { io } from "socket.io-client";
 export default function App() {
   const [admin, setAdmin] = useState("");
   const [UserPosts, setUserPosts] = useState([]);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    (() => {
+      const socket = io("http://localhost:1111", { withCredentials: true });
+      setSocket(socket);
+      // socket.on("welcome", (data) => alert(data));
+      socket.on("randomRouteHit", (data) => console.log(data));
+    })();
+  }, []);
 
   const router = createBrowserRouter([
-    { path: "/", element: <FeedPage /> },
+    { path: "/", element: <FeedPage socket={socket} /> },
     { path: "/auth", element: <AuthPages /> },
     { path: "/inbox", element: <InboxPage /> },
     { path: "/inbox/:conversationId", element: <MessagesPage /> },
@@ -36,7 +46,7 @@ export default function App() {
     { path: "/notification", element: <NotificationPage /> },
     { path: "/edit/profile", element: <EditPage /> },
     { path: "/create/post", element: <CreatePostPage /> },
-    { path: "/post/:id", element: <Post /> },
+    { path: "/post/:id", element: <Post socket={socket}  /> },
     { path: "/Followers/:Username", element: <FollowersPage /> },
     { path: "/Following/:Username", element: <FollowingPage /> },
   ]);

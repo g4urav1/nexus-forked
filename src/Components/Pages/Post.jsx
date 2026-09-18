@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 
-export default function Post() {
+export default function Post({ socket }) {
   const { id } = useParams();
 
   const [post, setPost] = useState(null);
@@ -17,6 +17,16 @@ export default function Post() {
 
   const defaultPfp =
     "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg";
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("getFeed", () => {
+      getPost();
+    });
+  }, [socket]);
+
+  
 
   const getPost = async () => {
     try {
