@@ -1,8 +1,9 @@
-import { Heart, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Delete, Heart, Recycle, Send, Trash } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
+import { AdminContext } from "../context/context";
 
 export default function Post({ socket }) {
   const { id } = useParams();
@@ -15,18 +16,54 @@ export default function Post({ socket }) {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(false);
 
+  const { admin } = useContext(AdminContext);
+
   const defaultPfp =
     "https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg";
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("getFeed", () => {
-      getPost();
-    });
+    const fetchComments = (data) => {
+      if (!data?.id || !data?.Commenter) return;
+
+      setComments((prev) => {
+        if (prev.some((comment) => comment.id === data.id)) {
+          return prev;
+        }
+
+        return [
+          ...prev,
+          {
+            id: data.id,
+            Commenter: data.Commenter,
+            CommenterPfp: data.CommenterPfp,
+            CommentText: data.Comment,
+            CommentedAt: data.CommentedAt,
+          },
+        ];
+      });
+    };
+
+    socket.on("getComments", fetchComments);
   }, [socket]);
 
-  
+  useEffect(() => {
+    if (!socket) return;
+
+    const fetchLikes = (data) => {
+      setPost((currentPost) =>
+        currentPost?._id === data.postId
+          ? {
+              ...currentPost,
+              Likes: data.likes,
+            }
+          : currentPost,
+      );
+    };
+
+    socket.on("getLikes", fetchLikes);
+  }, [socket]);
 
   const getPost = async () => {
     try {
@@ -126,17 +163,6 @@ export default function Post({ socket }) {
         return;
       }
 
-      setComments((prev) => [
-        ...prev,
-        {
-          id: data.id,
-          Commenter: data.Commenter,
-          CommenterPfp: data.CommenterPfp,
-          CommentText: data.Comment,
-          CommentedAt: data.CommentedAt,
-        },
-      ]);
-
       setCommentText("");
 
       setPost((currentPost) =>
@@ -150,6 +176,50 @@ export default function Post({ socket }) {
       );
     } catch (error) {
       console.error("ADD COMMENT ERROR:", error);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleRemoveComment = async (e, commentId) => {
+    e.preventDefault();
+
+    if (!confirm("Do you want to delete this comment?")) return;
+
+    try {
+      setCommentLoading(true);
+
+      const response = await fetch("http://localhost:1111/deleteComment", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          CommentId: commentId,
+          PostId: id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to delete comment");
+        return;
+      }
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+
+      setPost((currentPost) =>
+        currentPost
+          ? {
+              ...currentPost,
+              CommentCount: data.CommentCount,
+              comments: data.CommentCount,
+            }
+          : currentPost,
+      );
+    } catch (error) {
+      console.error("REMOVE COMMENT ERROR:", error);
     } finally {
       setCommentLoading(false);
     }
@@ -306,7 +376,7 @@ export default function Post({ socket }) {
               </div>
 
               {/* Comments List */}
-              <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+              <div className="flex-1 lg:min-h-4/5 overflow-y-auto [&::-webkit-scrollbar]:hidden">
                 {/* Loading */}
                 {commentsLoading && (
                   <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
@@ -333,7 +403,7 @@ export default function Post({ socket }) {
                     {comments.map((comment) => (
                       <div
                         key={comment.id}
-                        className="p-3.5 sm:p-4 flex gap-2.5 sm:gap-3"
+                        className="p-3.5 sm:p-4 flex items-center gap-2.5 sm:gap-3"
                       >
                         {/* Avatar */}
                         <img
@@ -358,6 +428,18 @@ export default function Post({ socket }) {
                             {comment.CommentText}
                           </p>
                         </div>
+
+                        {(comment.Commenter === admin.Username ||
+                          post.Username === admin.Username) && (
+                          <div
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                              handleRemoveComment(e, comment.id);
+                            }}
+                          >
+                            <Trash size={14} />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

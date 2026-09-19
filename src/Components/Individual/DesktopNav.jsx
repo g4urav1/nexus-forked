@@ -15,7 +15,7 @@ export default function DesktopNav() {
         method: "POST",
         credentials: "include",
       });
-      localStorage.removeItem("adminId")
+      localStorage.removeItem("adminId");
       navigate("/login");
     }
     return;
@@ -24,10 +24,10 @@ export default function DesktopNav() {
   const { admin } = useContext(AdminContext);
 
   return (
-    <aside className="hidden md:flex md:w-20 xl:w-64 flex-col justify-between h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] sticky top-4 lg:top-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-4 shadow-sm shrink-0">
+    <aside className="hidden md:flex md:w-20 xl:w-64 flex-col justify-between h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] sticky top-4 lg:top-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-4 shadow-sm shrink-0 overflow-auto pt-0 [&::-webkit-scrollbar]:hidden">
       <div className="space-y-6">
         {/* Brand Logo */}
-        <div className="flex items-center space-x-3 px-2">
+        <div className="flex items-center space-x-3 px-2 sticky top-0 pt-4 bg-white dark:bg-slate-900">
           <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
             N
           </div>
