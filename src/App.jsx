@@ -36,7 +36,7 @@ export default function App() {
     { path: "/", element: <FeedPage socket={socket} /> },
     { path: "/auth", element: <AuthPages /> },
     { path: "/inbox", element: <InboxPage /> },
-    { path: "/inbox/:conversationId", element: <MessagesPage /> },
+    { path: "/inbox/:conversationId", element: <MessagesPage socket={socket}  /> },
     { path: "/User/:Username", element: <ProfilePage /> },
     { path: "/search", element: <SearchPage /> },
     { path: "/login", element: <LoginPage /> },

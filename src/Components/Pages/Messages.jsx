@@ -3,7 +3,7 @@ import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function MessagesPage() {
+export default function MessagesPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
 
   const adminId = localStorage.getItem("adminId");
@@ -32,7 +32,6 @@ export default function MessagesPage() {
     (chat) => chat.conversationId === activeChatId,
   );
 
-  // Sync active chat with URL param
   useEffect(() => {
     setActiveChatId(conversationId || "");
 
@@ -43,7 +42,6 @@ export default function MessagesPage() {
     }
   }, [conversationId]);
 
-  // Get conversations
   useEffect(() => {
     const getConversation = async () => {
       try {
@@ -75,41 +73,47 @@ export default function MessagesPage() {
     getConversation();
   }, []);
 
+  const getMessages = async () => {
+    try {
+      setLoadingMessages(true);
+
+      const response = await fetch(
+        `http://localhost:1111/messages/${activeChatId}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Failed to get messages");
+        return;
+      }
+
+      const data = await response.json();
+
+      setMessages(data);
+    } catch (error) {
+      console.error(error);
+      setMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
   useEffect(() => {
     if (!activeChatId) {
       setMessages([]);
       return;
     }
 
-    const getMessages = async () => {
-      try {
-        setLoadingMessages(true);
-
-        const response = await fetch(
-          `http://localhost:1111/messages/${activeChatId}`,
-          {
-            credentials: "include",
-          },
-        );
-
-        if (!response.ok) {
-          console.error("Failed to get messages");
-          return;
-        }
-
-        const data = await response.json();
-
-        setMessages(data);
-      } catch (error) {
-        console.error(error);
-        setMessages([]);
-      } finally {
-        setLoadingMessages(false);
-      }
-    };
-
     getMessages();
   }, [activeChatId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("RefreshMsg", getMessages);
+  }, [socket]);
 
   const navigate = useNavigate();
 
@@ -132,8 +136,8 @@ export default function MessagesPage() {
         day: "2-digit",
         month: "short",
         year: "numeric",
-         hour: "2-digit",
-      minute: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     }
 

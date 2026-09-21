@@ -155,28 +155,8 @@ export default function NotificationPage() {
                 "
                           />
                         ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFollow(notify.id);
-                            }}
-                            className={`
-                  px-2.5 sm:px-3.5
-                  py-1.5
-                  rounded-lg sm:rounded-xl
-                  text-[10px] sm:text-xs
-                  font-semibold
-                  whitespace-nowrap
-                  transition
-                  active:scale-95
-                  ${
-                    notify.isFollowing
-                      ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/50 dark:hover:text-rose-400"
-                      : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20"
-                  }
-                `}
-                          >
-                            {notify.isFollowing ? "Following" : "Follow"}
+                          <button>
+                           
                           </button>
                         )}
                       </div>

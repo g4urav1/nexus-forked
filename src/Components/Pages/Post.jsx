@@ -1,4 +1,4 @@
-import { Delete, Heart, Recycle, Send, Trash } from "lucide-react";
+import { Heart, Send, Trash } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DesktopNav from "../Individual/DesktopNav";
