@@ -43,7 +43,7 @@ export default function App() {
     { path: "/forget-password", element: <ForgetPasswordPage /> },
     { path: "/reset-password", element: <ResetPasswordPage /> },
     { path: "/signup", element: <SignupPage /> },
-    { path: "/notification", element: <NotificationPage /> },
+    { path: "/notification", element: <NotificationPage socket={socket}  /> },
     { path: "/edit/profile", element: <EditPage /> },
     { path: "/create/post", element: <CreatePostPage /> },
     { path: "/post/:id", element: <Post socket={socket}  /> },

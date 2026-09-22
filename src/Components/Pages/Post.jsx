@@ -405,6 +405,7 @@ export default function Post({ socket }) {
                         key={comment.id}
                         className="p-3.5 sm:p-4 flex items-center gap-2.5 sm:gap-3"
                       >
+                        {console.log(comment)}
                         {/* Avatar */}
                         <img
                           src={comment.CommenterPfp || defaultPfp}

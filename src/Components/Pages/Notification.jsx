@@ -3,7 +3,7 @@ import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { AdminContext } from "../context/context";
 
-export default function NotificationPage() {
+export default function NotificationPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
   const [notification, setNotification] = useState([]);
 
@@ -23,7 +23,13 @@ export default function NotificationPage() {
 
   useEffect(() => {
     getNotifications();
-  }, [notification]);
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("sendNotification", getNotifications);
+  }, [socket]);
 
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -80,7 +86,7 @@ export default function NotificationPage() {
               {notification.length > 0 ? (
                 notification.map((notify) => (
                   <div
-                    key={notify._id}
+                    key={notify.id}
                     onClick={() =>
                       (window.location.href = `/user/${notify.NotificationBy}`)
                     }
@@ -155,16 +161,17 @@ export default function NotificationPage() {
                 "
                           />
                         ) : (
-                          <button>
-                           
-                          </button>
+                          <button></button>
                         )}
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full text-center py-12 text-slate-400 text-xs">
+                <div
+                  key={0}
+                  className="col-span-full text-center py-12 text-slate-400 text-xs"
+                >
                   No Notifications yet.
                 </div>
               )}
