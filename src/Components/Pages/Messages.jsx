@@ -10,18 +10,13 @@ export default function MessagesPage({ socket }) {
 
   const { conversationId } = useParams();
 
+  const bottomRef = useRef(null);
+
   const [activeChatId, setActiveChatId] = useState(conversationId || "");
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState("");
 
   const [messages, setMessages] = useState([]);
-
-  const messagesEndRef = useRef(null);
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }, [messages]);
 
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingConversation, setLoadingConversation] = useState(false);
@@ -33,6 +28,10 @@ export default function MessagesPage({ socket }) {
   );
 
   useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
     setActiveChatId(conversationId || "");
 
     if (conversationId) {
@@ -41,6 +40,26 @@ export default function MessagesPage({ socket }) {
       setMobileShowChat(false);
     }
   }, [conversationId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const fetchMessages = (data) => {
+      setMessages((prev) => {
+        if (prev.some((message) => message.id === data.id)) {
+          return prev;
+        }
+
+        return [...prev, data];
+      });
+    };
+
+    socket.on("RefreshMsg", fetchMessages);
+
+    return () => {
+      socket.off("RefreshMsg", fetchMessages);
+    };
+  }, [socket]);
 
   useEffect(() => {
     const getConversation = async () => {
@@ -86,14 +105,15 @@ export default function MessagesPage({ socket }) {
 
       if (!response.ok) {
         console.error("Failed to get messages");
+        setMessages([]);
         return;
       }
 
       const data = await response.json();
 
-      setMessages(data);
+      setMessages(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching messages:", error);
       setMessages([]);
     } finally {
       setLoadingMessages(false);
@@ -105,15 +125,8 @@ export default function MessagesPage({ socket }) {
       setMessages([]);
       return;
     }
-
     getMessages();
   }, [activeChatId]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("RefreshMsg", getMessages);
-  }, [socket]);
 
   const navigate = useNavigate();
 
@@ -224,9 +237,7 @@ export default function MessagesPage({ socket }) {
             {/* ================= LEFT: CONVERSATIONS ================= */}
 
             <div
-              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${
-                mobileShowChat ? "hidden md:flex" : "flex"
-              }`}
+              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${mobileShowChat ? "hidden md:flex" : "flex"}`}
             >
               {/* ================= HEADER ================= */}
 
@@ -342,9 +353,7 @@ export default function MessagesPage({ socket }) {
 
             {activeChat && (
               <div
-                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${
-                  mobileShowChat ? "flex" : "hidden md:flex"
-                }`}
+                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${mobileShowChat ? "flex" : "hidden md:flex"}`}
               >
                 {/* ================= CHAT HEADER ================= */}
 
@@ -448,9 +457,7 @@ export default function MessagesPage({ socket }) {
                       return (
                         <div
                           key={msg._id}
-                          className={`flex flex-col ${
-                            isMe ? "items-end" : "items-start"
-                          }`}
+                          className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                         >
                           {/* Message */}
 
@@ -473,7 +480,7 @@ export default function MessagesPage({ socket }) {
                       );
                     })
                   )}
-                  <div ref={messagesEndRef} />
+                  <div ref={bottomRef}></div>
                 </div>
 
                 {/* ================= COMPOSER ================= */}

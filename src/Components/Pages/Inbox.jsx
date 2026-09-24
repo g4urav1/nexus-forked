@@ -15,13 +15,10 @@ export default function InboxPage() {
 
   const [conversations, setConversations] = useState([]);
 
-
-
   useEffect(() => {
     const getConversation = async () => {
       try {
         setLoadingConversation(true);
-        console.log("AdminId:", adminId);
 
         const response = await fetch("http://localhost:1111/conversations", {
           credentials: "include",
@@ -34,8 +31,6 @@ export default function InboxPage() {
         const data = await response.json();
 
         setConversations(data);
-
-        console.log("Conversations:", data);
       } catch (error) {
         console.error(error);
         setConversations([]);
@@ -47,16 +42,13 @@ export default function InboxPage() {
     getConversation();
   }, []);
 
-
-
- const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSelectChat = (conversationId) => {
     setActiveChatId(conversationId);
     setMobileShowChat(true);
-    navigate(`/inbox/${conversationId}`)
+    navigate(`/inbox/${conversationId}`);
   };
-
 
   const getChatName = (chat) => {
     return chat.participants
@@ -67,8 +59,6 @@ export default function InboxPage() {
   const getParticipants = (chat) => {
     return chat?.participants || [];
   };
-
-
 
   return (
     <div className={darkMode ? "dark" : ""}>
