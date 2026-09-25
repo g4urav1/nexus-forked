@@ -7,28 +7,35 @@ export default function MessagesPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
 
   const adminId = localStorage.getItem("adminId");
-
   const { conversationId } = useParams();
+  const navigate = useNavigate();
 
   const bottomRef = useRef(null);
+  const messageContainerRef = useRef(null);
+  const restoreScrollRef = useRef(null);
 
   const [activeChatId, setActiveChatId] = useState(conversationId || "");
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState("");
-
   const [messages, setMessages] = useState([]);
 
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
   const [loadingConversation, setLoadingConversation] = useState(false);
 
   const [conversations, setConversations] = useState([]);
+
+  const [messageSkip, setMessageSkip] = useState(0);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
   const activeChat = conversations.find(
     (chat) => chat.conversationId === activeChatId,
   );
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   }, [messages]);
 
   useEffect(() => {
@@ -45,12 +52,18 @@ export default function MessagesPage({ socket }) {
     if (!socket) return;
 
     const fetchMessages = (data) => {
+      const newMessage = data;
+
+      if (newMessage.user_id !== adminId) {
+        alert("you have a new Message");
+      }
+
       setMessages((prev) => {
-        if (prev.some((message) => message.id === data.id)) {
+        if (prev.some((message) => message._id === newMessage._id)) {
           return prev;
         }
 
-        return [...prev, data];
+        return [...prev, newMessage];
       });
     };
 
@@ -59,13 +72,26 @@ export default function MessagesPage({ socket }) {
     return () => {
       socket.off("RefreshMsg", fetchMessages);
     };
+  }, [socket, adminId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const showNoti = (data) => {
+      alert(data.notification);
+    };
+
+    socket.on("msgNotifiaction", showNoti);
+
+    return () => {
+      socket.off("msgNotifiaction", showNoti);
+    };
   }, [socket]);
 
   useEffect(() => {
     const getConversation = async () => {
       try {
         setLoadingConversation(true);
-        console.log("AdminId:", adminId);
 
         const response = await fetch("http://localhost:1111/conversations", {
           credentials: "include",
@@ -79,8 +105,6 @@ export default function MessagesPage({ socket }) {
         const data = await response.json();
 
         setConversations(data);
-
-        console.log("Conversations:", data);
       } catch (error) {
         console.error(error);
         setConversations([]);
@@ -92,12 +116,16 @@ export default function MessagesPage({ socket }) {
     getConversation();
   }, []);
 
-  const getMessages = async () => {
+  const getMessages = async (skip = 0, loadMore = false) => {
     try {
-      setLoadingMessages(true);
+      if (loadMore) {
+        setLoadingMoreMessages(true);
+      } else {
+        setLoadingMessages(true);
+      }
 
       const response = await fetch(
-        `http://localhost:1111/messages/${activeChatId}`,
+        `http://localhost:1111/messages/${activeChatId}?skip=${skip}`,
         {
           credentials: "include",
         },
@@ -105,18 +133,23 @@ export default function MessagesPage({ socket }) {
 
       if (!response.ok) {
         console.error("Failed to get messages");
-        setMessages([]);
         return;
       }
 
       const data = await response.json();
 
-      setMessages(Array.isArray(data) ? data : []);
+      if (loadMore) {
+        setMessages((prev) => [...data, ...prev]);
+      } else {
+        setMessages(Array.isArray(data) ? data : []);
+      }
+
+      setHasMoreMessages(data.length === 10);
     } catch (error) {
       console.error("Error fetching messages:", error);
-      setMessages([]);
     } finally {
       setLoadingMessages(false);
+      setLoadingMoreMessages(false);
     }
   };
 
@@ -125,10 +158,14 @@ export default function MessagesPage({ socket }) {
       setMessages([]);
       return;
     }
-    getMessages();
+
+    setMessageSkip(0);
+    setHasMoreMessages(true);
+
+    getMessages(0, false);
   }, [activeChatId]);
 
-  const navigate = useNavigate();
+  const loadMoreMessages = async () => {};
 
   const handleSelectChat = (conversationId) => {
     setActiveChatId(conversationId);
@@ -204,18 +241,6 @@ export default function MessagesPage({ socket }) {
       }
 
       setMessageInput("");
-
-      const messagesResponse = await fetch(
-        `http://localhost:1111/messages/${activeChatId}`,
-        {
-          credentials: "include",
-        },
-      );
-
-      if (messagesResponse.ok) {
-        const updatedMessages = await messagesResponse.json();
-        setMessages(updatedMessages);
-      }
     } catch (error) {
       console.error(error);
     }
@@ -224,23 +249,15 @@ export default function MessagesPage({ socket }) {
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-        {/* APP CONTAINER */}
-
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 lg:gap-6 p-2 sm:p-4 lg:p-6 h-screen">
-          {/* ================= 1. DESKTOP SIDEBAR / NAVIGATION ================= */}
-
           <DesktopNav />
 
-          {/* ================= 2. MESSAGES CONTAINER ================= */}
-
           <main className="flex-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm flex h-[calc(100vh-5rem)] md:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)]">
-            {/* ================= LEFT: CONVERSATIONS ================= */}
-
             <div
-              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${mobileShowChat ? "hidden md:flex" : "flex"}`}
+              className={`w-full md:w-72 lg:w-80 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col shrink-0 ${
+                mobileShowChat ? "hidden md:flex" : "flex"
+              }`}
             >
-              {/* ================= HEADER ================= */}
-
               <div className="p-3.5 sm:p-4 space-y-3 border-b border-slate-100 dark:border-slate-800/80">
                 <div className="flex items-center justify-between">
                   <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
@@ -254,8 +271,6 @@ export default function MessagesPage({ socket }) {
                     {darkMode ? "☀️" : "🌙"}
                   </button>
                 </div>
-
-                {/* ================= SEARCH ================= */}
 
                 <div className="relative">
                   <svg
@@ -279,8 +294,6 @@ export default function MessagesPage({ socket }) {
                   />
                 </div>
               </div>
-
-              {/* ================= CONTACTS ================= */}
 
               <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50">
                 {loadingConversation ? (
@@ -309,8 +322,6 @@ export default function MessagesPage({ socket }) {
                             : "hover:bg-slate-800/40"
                         }`}
                       >
-                        {/* ================= AVATARS ================= */}
-
                         <div className="flex -space-x-3 shrink-0">
                           {participants.slice(0, 3).map((user, index) => (
                             <img
@@ -324,8 +335,6 @@ export default function MessagesPage({ socket }) {
                             />
                           ))}
 
-                          {/* Show +N when more than 3 users */}
-
                           {participants.length > 3 && (
                             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-semibold text-slate-600 dark:text-slate-200">
                               +{participants.length - 3}
@@ -333,14 +342,10 @@ export default function MessagesPage({ socket }) {
                           )}
                         </div>
 
-                        {/* ================= USER INFORMATION ================= */}
-
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-0.5">
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
-                              {getChatName(chat)}
-                            </h4>
-                          </div>
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                            {getChatName(chat)}
+                          </h4>
                         </div>
                       </div>
                     );
@@ -349,22 +354,19 @@ export default function MessagesPage({ socket }) {
               </div>
             </div>
 
-            {/* ================= RIGHT: CHAT ================= */}
-
             {activeChat && (
               <div
-                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${mobileShowChat ? "flex" : "hidden md:flex"}`}
+                className={`flex-1 flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 ${
+                  mobileShowChat ? "flex" : "hidden md:flex"
+                }`}
               >
-                {/* ================= CHAT HEADER ================= */}
-
                 <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
                   <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                    {/* Mobile back button */}
-
                     <button
                       onClick={() => {
                         setMobileShowChat(false);
                         navigate("/inbox");
+                        setMessages([]);
                       }}
                       className="md:hidden p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-xl transition"
                     >
@@ -382,8 +384,6 @@ export default function MessagesPage({ socket }) {
                         />
                       </svg>
                     </button>
-
-                    {/* ================= HEADER AVATARS ================= */}
 
                     <div className="flex -space-x-2 shrink-0">
                       {activeChat.participants
@@ -407,8 +407,6 @@ export default function MessagesPage({ socket }) {
                       )}
                     </div>
 
-                    {/* ================= HEADER NAME ================= */}
-
                     <div className="min-w-0">
                       <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
                         {getChatName(activeChat)}
@@ -416,30 +414,40 @@ export default function MessagesPage({ socket }) {
                     </div>
                   </div>
 
-                  {/* ================= CALL BUTTON ================= */}
-
-                  <div className="flex items-center space-x-1 sm:space-x-2 text-slate-400">
-                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.828-1.015-5.116-3.303-6.131-6.131l1.293-.97c.362-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  <button className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.828-1.015-5.116-3.303-6.131-6.131l1.293-.97c.362-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+                      />
+                    </svg>
+                  </button>
                 </div>
 
-                {/* ================= MESSAGE LOG ================= */}
+                <div
+                  className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3"
+                >
+                  {hasMoreMessages &&
+                    !loadingMessages &&
+                    messages.length > 0 && (
+                      <div className="flex justify-center py-1">
+                        <button
+                          onClick={loadMoreMessages}
+                          disabled={loadingMoreMessages}
+                          className="text-xs text-indigo-500 hover:text-indigo-400 disabled:opacity-50 font-medium px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 transition"
+                        >
+                          {loadingMoreMessages ? "Loading..." : "Load more"}
+                        </button>
+                      </div>
+                    )}
 
-                <div className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3">
                   {loadingMessages ? (
                     <div className="flex justify-center items-center h-full">
                       <p className="text-xs text-slate-400">
@@ -457,10 +465,10 @@ export default function MessagesPage({ socket }) {
                       return (
                         <div
                           key={msg._id}
-                          className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                          className={`flex flex-col ${
+                            isMe ? "items-end" : "items-start"
+                          }`}
                         >
-                          {/* Message */}
-
                           <div
                             className={`max-w-[80%] sm:max-w-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-xs leading-relaxed ${
                               isMe
@@ -471,8 +479,6 @@ export default function MessagesPage({ socket }) {
                             {msg.content}
                           </div>
 
-                          {/* Time */}
-
                           <span className="text-[10px] text-slate-400 mt-1 px-1">
                             {formatMessageTime(msg.created_at)}
                           </span>
@@ -480,10 +486,9 @@ export default function MessagesPage({ socket }) {
                       );
                     })
                   )}
+
                   <div ref={bottomRef}></div>
                 </div>
-
-                {/* ================= COMPOSER ================= */}
 
                 <div className="p-2.5 sm:p-3 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800/80 mb-12 md:mb-2">
                   <form
@@ -520,8 +525,6 @@ export default function MessagesPage({ socket }) {
               </div>
             )}
           </main>
-
-          {/* ================= 3. MOBILE BOTTOM NAVIGATION ================= */}
 
           <MobileMenu />
         </div>

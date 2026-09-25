@@ -134,7 +134,7 @@ export default function DesktopNav() {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="text-[10px]">Messages</span>
+          <span className="text-[10px]">Notifications</span>
         </NavLink>
 
         <NavLink
