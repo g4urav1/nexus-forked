@@ -11,9 +11,7 @@ export default function EditPage() {
 
   const [Username, setUsername] = useState("");
   const [Bio, setBio] = useState("");
-  const [response, setResponse] = useState("");
   const [Pfp, setPfp] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
 
   const handleChange = async () => {
     const formData = new FormData();
@@ -29,13 +27,7 @@ export default function EditPage() {
       });
 
       const data = await response.json();
-      if (response.ok) {
-        setResponse(data.message);
-        setShowPopup(true);
-      } else {
-        alert(data.message);
-        console.log(data);
-      }
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
@@ -45,7 +37,7 @@ export default function EditPage() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      {showPopup && <Popup response={response} setShowPopup={setShowPopup} />}
+      
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
         {/* APP CONTAINER */}
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 lg:gap-6 p-2 sm:p-4 lg:p-6 pb-20 md:pb-6">

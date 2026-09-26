@@ -13,14 +13,22 @@ import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
 import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
-import { AdminContext, UserPostContext } from "./Components/context/context";
+import {
+  AdminContext,
+  UserPostContext,
+  PopUpContext,
+  PopUpMsgContext,
+} from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
 import FollowersPage from "./Components/Pages/Followers";
 import FollowingPage from "./Components/Pages/Following";
 import { io } from "socket.io-client";
+import Parent from "./Components/Pages/Parent";
 export default function App() {
   const [admin, setAdmin] = useState("");
   const [UserPosts, setUserPosts] = useState([]);
+  const [ShowPopUp, setShowPopUp] = useState(false);
+  const [popUpMsg, setPopUpMsg] = useState("");
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -33,22 +41,34 @@ export default function App() {
   }, []);
 
   const router = createBrowserRouter([
-    { path: "/", element: <FeedPage socket={socket} /> },
-    { path: "/auth", element: <AuthPages /> },
-    { path: "/inbox", element: <InboxPage /> },
-    { path: "/inbox/:conversationId", element: <MessagesPage socket={socket}  /> },
-    { path: "/User/:Username", element: <ProfilePage /> },
-    { path: "/search", element: <SearchPage /> },
-    { path: "/login", element: <LoginPage /> },
-    { path: "/forget-password", element: <ForgetPasswordPage /> },
-    { path: "/reset-password", element: <ResetPasswordPage /> },
-    { path: "/signup", element: <SignupPage /> },
-    { path: "/notification", element: <NotificationPage socket={socket}  /> },
-    { path: "/edit/profile", element: <EditPage /> },
-    { path: "/create/post", element: <CreatePostPage /> },
-    { path: "/post/:id", element: <Post socket={socket}  /> },
-    { path: "/Followers/:Username", element: <FollowersPage /> },
-    { path: "/Following/:Username", element: <FollowingPage /> },
+    {
+      path: "/",
+      element: <Parent socket={socket} />,
+      children: [
+        { path: "/", element: <FeedPage socket={socket} /> },
+        { path: "/auth", element: <AuthPages /> },
+        { path: "/inbox", element: <InboxPage /> },
+        {
+          path: "/inbox/:conversationId",
+          element: <MessagesPage socket={socket} />,
+        },
+        { path: "/User/:Username", element: <ProfilePage /> },
+        { path: "/search", element: <SearchPage /> },
+        { path: "/login", element: <LoginPage /> },
+        { path: "/forget-password", element: <ForgetPasswordPage /> },
+        { path: "/reset-password", element: <ResetPasswordPage /> },
+        { path: "/signup", element: <SignupPage /> },
+        {
+          path: "/notification",
+          element: <NotificationPage socket={socket} />,
+        },
+        { path: "/edit/profile", element: <EditPage /> },
+        { path: "/create/post", element: <CreatePostPage /> },
+        { path: "/post/:id", element: <Post socket={socket} /> },
+        { path: "/Followers/:Username", element: <FollowersPage /> },
+        { path: "/Following/:Username", element: <FollowingPage /> },
+      ],
+    },
   ]);
 
   const loadUser = async () => {
@@ -77,10 +97,14 @@ export default function App() {
   }, []);
 
   return (
-    <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
-      <AdminContext.Provider value={{ admin, setAdmin }}>
-        <RouterProvider router={router} />
-      </AdminContext.Provider>
-    </UserPostContext.Provider>
+    <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
+      <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
+        <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
+          <AdminContext.Provider value={{ admin, setAdmin }}>
+            <RouterProvider router={router} />
+          </AdminContext.Provider>
+        </UserPostContext.Provider>
+      </PopUpContext.Provider>
+    </PopUpMsgContext.Provider>
   );
 }

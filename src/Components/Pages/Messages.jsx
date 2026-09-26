@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
+import Popup from "../Individual/PopUp";
+import { PopUpContext, PopUpMsgContext } from "../context/context";
 
 export default function MessagesPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
@@ -12,7 +14,9 @@ export default function MessagesPage({ socket }) {
 
   const bottomRef = useRef(null);
   const messageContainerRef = useRef(null);
-  const restoreScrollRef = useRef(null);
+
+  const { setShowPopUp } = useContext(PopUpContext);
+  const { setPopUpMsg } = useContext(PopUpMsgContext);
 
   const [activeChatId, setActiveChatId] = useState(conversationId || "");
   const [mobileShowChat, setMobileShowChat] = useState(false);
@@ -33,12 +37,6 @@ export default function MessagesPage({ socket }) {
   );
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }, [messages]);
-
-  useEffect(() => {
     setActiveChatId(conversationId || "");
 
     if (conversationId) {
@@ -52,11 +50,7 @@ export default function MessagesPage({ socket }) {
     if (!socket) return;
 
     const fetchMessages = (data) => {
-      const newMessage = data;
-
-      if (newMessage.user_id !== adminId) {
-        alert("you have a new Message");
-      }
+      const newMessage = data.message;
 
       setMessages((prev) => {
         if (prev.some((message) => message._id === newMessage._id)) {
@@ -73,20 +67,6 @@ export default function MessagesPage({ socket }) {
       socket.off("RefreshMsg", fetchMessages);
     };
   }, [socket, adminId]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const showNoti = (data) => {
-      alert(data.notification);
-    };
-
-    socket.on("msgNotifiaction", showNoti);
-
-    return () => {
-      socket.off("msgNotifiaction", showNoti);
-    };
-  }, [socket]);
 
   useEffect(() => {
     const getConversation = async () => {
@@ -153,6 +133,30 @@ export default function MessagesPage({ socket }) {
     }
   };
 
+  const loadMoreMessages = async () => {
+    if (loadingMoreMessages || !hasMoreMessages) return;
+
+    const container = messageContainerRef.current;
+
+    // Before loading
+    const previousScrollHeight = container.scrollHeight;
+    const previousScrollTop = container.scrollTop;
+
+    const newSkip = messageSkip + 10;
+
+    await getMessages(newSkip, true);
+
+    setMessageSkip(newSkip);
+
+    // After new messages are rendered
+    requestAnimationFrame(() => {
+      const newScrollHeight = container.scrollHeight;
+
+      container.scrollTop =
+        previousScrollTop + (newScrollHeight - previousScrollHeight);
+    });
+  };
+
   useEffect(() => {
     if (!activeChatId) {
       setMessages([]);
@@ -164,8 +168,6 @@ export default function MessagesPage({ socket }) {
 
     getMessages(0, false);
   }, [activeChatId]);
-
-  const loadMoreMessages = async () => {};
 
   const handleSelectChat = (conversationId) => {
     setActiveChatId(conversationId);
@@ -241,6 +243,9 @@ export default function MessagesPage({ socket }) {
       }
 
       setMessageInput("");
+      bottomRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
     } catch (error) {
       console.error(error);
     }
@@ -432,6 +437,7 @@ export default function MessagesPage({ socket }) {
                 </div>
 
                 <div
+                  ref={messageContainerRef}
                   className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3"
                 >
                   {hasMoreMessages &&

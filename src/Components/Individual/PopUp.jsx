@@ -1,31 +1,20 @@
-import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { PopUpContext, PopUpMsgContext } from "../context/context";
 
-export default function Popup({ response, setShowPopup }) {
-  const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    setShowPopup(false);
-    navigate(-1);
-  };
+export default function Popup() {
+  const { ShowPopUp } = useContext(PopUpContext);
+  const { popUpMsg } = useContext(PopUpMsgContext);
 
   return (
-    <div
-      onClick={() => setShowPopup(false)}
-      className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm flex justify-center items-center"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-[#0F172A] text-white p-6 rounded-xl shadow-xl min-w-[300px] flex flex-col items-center"
-      >
-        <p>{response}</p>
-
-        <button
-          onClick={handleGoBack}
-          className="mt-4 px-4 py-2 rounded-lg bg-pink-500 hover:bg-pink-600"
+    <>
+      {ShowPopUp && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-[#0F172A] fixed z-50 text-[#753CEC] bottom-10 left-1/2 -translate-x-1/2 p-6 rounded-xl shadow-xl min-w-[300px] flex flex-col items-center"
         >
-          Go Back
-        </button>
-      </div>
-    </div>
+          <p className="text-center">{popUpMsg}</p>
+        </div>
+      )}
+    </>
   );
 }
