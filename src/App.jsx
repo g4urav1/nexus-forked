@@ -24,6 +24,7 @@ import FollowersPage from "./Components/Pages/Followers";
 import FollowingPage from "./Components/Pages/Following";
 import { io } from "socket.io-client";
 import Parent from "./Components/Pages/Parent";
+import CallPage from "./Components/Pages/Call";
 export default function App() {
   const [admin, setAdmin] = useState("");
   const [UserPosts, setUserPosts] = useState([]);
@@ -51,6 +52,10 @@ export default function App() {
         {
           path: "/inbox/:conversationId",
           element: <MessagesPage socket={socket} />,
+        },
+        {
+          path: "/call/:conversationId",
+          element: <CallPage socket={socket} />,
         },
         { path: "/User/:Username", element: <ProfilePage /> },
         { path: "/search", element: <SearchPage /> },

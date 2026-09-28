@@ -15,9 +15,6 @@ export default function MessagesPage({ socket }) {
   const bottomRef = useRef(null);
   const messageContainerRef = useRef(null);
 
-  const { setShowPopUp } = useContext(PopUpContext);
-  const { setPopUpMsg } = useContext(PopUpMsgContext);
-
   const [activeChatId, setActiveChatId] = useState(conversationId || "");
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState("");
@@ -35,6 +32,12 @@ export default function MessagesPage({ socket }) {
   const activeChat = conversations.find(
     (chat) => chat.conversationId === activeChatId,
   );
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [activeChat]);
 
   useEffect(() => {
     setActiveChatId(conversationId || "");
@@ -419,7 +422,14 @@ export default function MessagesPage({ socket }) {
                     </div>
                   </div>
 
-                  <button className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+                  <button
+                    onClick={() => {
+                      if (confirm(`call ${getChatName(activeChat)}`)) {
+                        navigate(`/call/${conversationId}`);
+                      }
+                    }}
+                    className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                  >
                     <svg
                       className="w-5 h-5"
                       fill="none"
