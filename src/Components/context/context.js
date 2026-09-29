@@ -1,19 +1,28 @@
 import { createContext } from "react";
 
 export const AdminContext = createContext({
-    admin: "",
-    setAdmin: () => { }
+  admin: "",
+  setAdmin: () => {},
 });
 export const UserPostContext = createContext({
-    UserPosts: "",
-    setUserPosts: () => []
+  UserPosts: "",
+  setUserPosts: () => [],
 });
 
 export const PopUpContext = createContext({
-    ShowPopUp: false,
-    setShowPopUp: () => []
+  ShowPopUp: false,
+  setShowPopUp: () => [],
 });
 export const PopUpMsgContext = createContext({
-    popUpMsg: "",
-    setPopUpMsg: () => []
+  popUpMsg: "",
+  setPopUpMsg: () => [],
+});
+
+export const CallStatusContext = createContext({
+  callStatus: "",
+  setCallStatus: () => [],
+});
+export const CallerContext = createContext({
+  caller: "",
+  setCaller: () => [],
 });

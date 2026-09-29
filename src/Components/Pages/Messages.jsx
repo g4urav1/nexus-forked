@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
-import Popup from "../Individual/PopUp";
-import { PopUpContext, PopUpMsgContext } from "../context/context";
+import { CallStatusContext } from "../context/context";
 
 export default function MessagesPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
@@ -28,6 +27,8 @@ export default function MessagesPage({ socket }) {
 
   const [messageSkip, setMessageSkip] = useState(0);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
+
+  const { setCallStatus } = useContext(CallStatusContext);
 
   const activeChat = conversations.find(
     (chat) => chat.conversationId === activeChatId,
@@ -425,6 +426,7 @@ export default function MessagesPage({ socket }) {
                   <button
                     onClick={() => {
                       if (confirm(`call ${getChatName(activeChat)}`)) {
+                        setCallStatus("calling");
                         navigate(`/call/${conversationId}`);
                       }
                     }}
