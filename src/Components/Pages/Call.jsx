@@ -1,7 +1,8 @@
 import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeOff } from "lucide-react";
+
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CallerContext, CallStatusContext } from "../context/context";
+import { CallStatusContext } from "../context/context";
 
 export default function CallPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
@@ -9,8 +10,9 @@ export default function CallPage({ socket }) {
   const adminId = localStorage.getItem("adminId");
   const { conversationId } = useParams();
 
-  const {caller, setCaller} = useContext(CallerContext);
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
+
+  const [callDetails, setCallDetails] = useState(null);
 
   useEffect(() => {
     const getCallDetail = async () => {
@@ -23,22 +25,25 @@ export default function CallPage({ socket }) {
         );
 
         if (!response.ok) {
-          console.error("Failed to get conversations");
+          console.error("Failed to get call details");
           return;
         }
 
         const data = await response.json();
-        setCaller(data);
+
+        setCallDetails(data);
       } catch (error) {
         console.error(error);
       }
     };
 
-    getCallDetail();
+    if (conversationId) {
+      getCallDetail();
+    }
   }, [conversationId]);
 
   const getCallUser = () => {
-    return caller?.participants?.[0];
+    return callDetails?.participants?.[0];
   };
 
   const [duration, setDuration] = useState(0);
@@ -105,7 +110,7 @@ export default function CallPage({ socket }) {
                     <div className="flex items-center space-x-10 md:space-x-32 rounded-full bg-black/50 px-4 py-3 backdrop-blur-xl sm:gap-4 sm:px-6">
                       <button
                         onClick={() => {
-                          setCallStatus("ended");
+                          setCallStatus("rejected");
                         }}
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 transition hover:bg-red-700 sm:h-14 sm:w-14"
                       >

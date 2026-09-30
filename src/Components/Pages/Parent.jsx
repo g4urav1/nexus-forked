@@ -1,7 +1,9 @@
 import { useContext, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Popup from "../Individual/PopUp";
 import CallNotification from "../Individual/CallNotification";
+import callSound from "../../assets/instagram_caller_tune.mp3";
+
 import {
   CallerContext,
   CallStatusContext,
@@ -13,21 +15,60 @@ export default function Parent({ socket }) {
   const adminId = localStorage.getItem("adminId");
   const location = useLocation();
 
+  const navigate = useNavigate();
+
   const { setShowPopUp } = useContext(PopUpContext);
   const { setPopUpMsg } = useContext(PopUpMsgContext);
 
   const { caller, setCaller } = useContext(CallerContext);
+
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
+
+  useEffect(() => {
+    if (callStatus == "rejected") {
+      navigate(-1);
+      setCaller(null);
+    }
+  }, [callStatus]);
+
+  useEffect(() => {
+    const audio = new Audio(callSound);
+
+    if (callStatus === "calling" || callStatus === "getCall") {
+      audio.loop = true;
+
+      audio.play().catch((err) => {
+        console.log("Call audio blocked:", err);
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [callStatus]);
 
   useEffect(() => {
     if (!socket || !adminId) return;
 
     const GetCallNotification = (data) => {
-      const { callerId, Username } = data;
+      console.log("GetCall received:", data);
 
-      if (callerId === adminId) return;
+      const { callerId, Username, pfp, conversationId } = data;
 
-      setCaller(Username);
+      if (callerId === adminId) {
+        return;
+      }
+
+      console.log("Incoming caller:", Username);
+
+      setCaller({
+        Username: Username || "Unknown User",
+        pfp: pfp || "",
+        callerId,
+        conversationId,
+      });
+
       setCallStatus("getCall");
     };
 
@@ -37,6 +78,10 @@ export default function Parent({ socket }) {
       socket.off("GetCall", GetCallNotification);
     };
   }, [socket, adminId, setCaller, setCallStatus]);
+
+  useEffect(() => {
+    console.log("CALLER STATE:", caller);
+  }, [caller]);
 
   useEffect(() => {
     if (!socket) return;
@@ -66,7 +111,7 @@ export default function Parent({ socket }) {
 
   return (
     <>
-      {!isCallPage && <CallNotification />}
+      {!isCallPage && <CallNotification socket={socket} />}
       <Popup />
       <Outlet />
     </>
