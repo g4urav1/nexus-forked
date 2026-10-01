@@ -1,5 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { CallerContext, CallStatusContext } from "../context/context";
+import {
+  CallerContext,
+  CallStatusContext,
+  CurrentCallContext,
+} from "../context/context";
 import { useNavigate } from "react-router-dom";
 
 export default function CallNotification({ socket }) {
@@ -9,6 +13,7 @@ export default function CallNotification({ socket }) {
 
   const { caller } = useContext(CallerContext);
   const { callStatus } = useContext(CallStatusContext);
+  const { currentCall } = useContext(CurrentCallContext);
 
   const [duration, setDuration] = useState(0);
 
@@ -26,15 +31,13 @@ export default function CallNotification({ socket }) {
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = duration % 60;
 
-  if (!callStatus) return null;
-
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="absolute z-50 w-full">
         {caller && (
           <div
             onClick={() => {
-              navigate(`/call/${caller.conversationId}`);
+              navigate(`/call/${currentCall.conversationId}`);
             }}
             className="
             md:w-1/5 w-full rounded-full mt-3 mx-auto
@@ -54,7 +57,7 @@ export default function CallNotification({ socket }) {
 
                     <span>•</span>
 
-                    {callStatus === "getCall" && (
+                    {callStatus === "incoming" && (
                       <p className="text-sm text-slate-300">Incoming Call</p>
                     )}
 

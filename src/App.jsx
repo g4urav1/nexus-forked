@@ -20,6 +20,8 @@ import {
   PopUpMsgContext,
   CallStatusContext,
   CallerContext,
+  ReceiverContext,
+  CurrentCallContext,
 } from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
 import FollowersPage from "./Components/Pages/Followers";
@@ -35,6 +37,8 @@ export default function App() {
   const [callStatus, setCallStatus] = useState("");
 
   const [caller, setCaller] = useState();
+  const [receiver, setReceiver] = useState();
+  const [currentCall, setCurrentCall] = useState();
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -107,18 +111,22 @@ export default function App() {
   }, []);
 
   return (
-    <CallerContext.Provider value={{ caller, setCaller }}>
-      <CallStatusContext.Provider value={{ callStatus, setCallStatus }}>
-        <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
-          <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
-            <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
-              <AdminContext.Provider value={{ admin, setAdmin }}>
-                <RouterProvider router={router} />
-              </AdminContext.Provider>
-            </UserPostContext.Provider>
-          </PopUpContext.Provider>
-        </PopUpMsgContext.Provider>
-      </CallStatusContext.Provider>
-    </CallerContext.Provider>
+    <CurrentCallContext.Provider value={{ currentCall, setCurrentCall }}>
+      <ReceiverContext.Provider value={{ receiver, setReceiver }}>
+        <CallerContext.Provider value={{ caller, setCaller }}>
+          <CallStatusContext.Provider value={{ callStatus, setCallStatus }}>
+            <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
+              <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
+                <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
+                  <AdminContext.Provider value={{ admin, setAdmin }}>
+                    <RouterProvider router={router} />
+                  </AdminContext.Provider>
+                </UserPostContext.Provider>
+              </PopUpContext.Provider>
+            </PopUpMsgContext.Provider>
+          </CallStatusContext.Provider>
+        </CallerContext.Provider>
+      </ReceiverContext.Provider>
+    </CurrentCallContext.Provider>
   );
 }

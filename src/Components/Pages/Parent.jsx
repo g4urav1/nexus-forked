@@ -7,8 +7,10 @@ import callSound from "../../assets/instagram_caller_tune.mp3";
 import {
   CallerContext,
   CallStatusContext,
+  CurrentCallContext,
   PopUpContext,
   PopUpMsgContext,
+  ReceiverContext,
 } from "../context/context";
 
 export default function Parent({ socket }) {
@@ -21,8 +23,10 @@ export default function Parent({ socket }) {
   const { setPopUpMsg } = useContext(PopUpMsgContext);
 
   const { caller, setCaller } = useContext(CallerContext);
+  const { receiver, setReceiver } = useContext(ReceiverContext);
 
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
+  const { setCurrentCall } = useContext(CurrentCallContext);
 
   useEffect(() => {
     if (callStatus == "rejected") {
@@ -34,7 +38,7 @@ export default function Parent({ socket }) {
   useEffect(() => {
     const audio = new Audio(callSound);
 
-    if (callStatus === "calling" || callStatus === "getCall") {
+    if (callStatus === "calling" || callStatus === "incoming") {
       audio.loop = true;
 
       audio.play().catch((err) => {
@@ -51,37 +55,34 @@ export default function Parent({ socket }) {
   useEffect(() => {
     if (!socket || !adminId) return;
 
-    const GetCallNotification = (data) => {
-      console.log("GetCall received:", data);
+    const GetCall = (data) => {
+      setCurrentCall(data);
+      console.log(data);
 
-      const { callerId, Username, pfp, conversationId } = data;
+      const { caller, receiver } = data;
 
-      if (callerId === adminId) {
-        return;
+      setCaller(data.caller);
+      setReceiver(data.receiver);
+
+      if (caller?._id?.toString() === adminId?.toString()) {
+        setCallStatus("calling");
+      } else if (receiver?._id?.toString() === adminId?.toString()) {
+        setCallStatus("incoming");
       }
-
-      console.log("Incoming caller:", Username);
-
-      setCaller({
-        Username: Username || "Unknown User",
-        pfp: pfp || "",
-        callerId,
-        conversationId,
-      });
-
-      setCallStatus("getCall");
     };
 
-    socket.on("GetCall", GetCallNotification);
+    socket.on("GetCall", GetCall);
 
     return () => {
-      socket.off("GetCall", GetCallNotification);
+      socket.off("GetCall", GetCall);
     };
-  }, [socket, adminId, setCaller, setCallStatus]);
+  }, [socket, adminId, setCaller, setReceiver, setCallStatus, setCurrentCall]);
 
   useEffect(() => {
-    console.log("CALLER STATE:", caller);
-  }, [caller]);
+    console.log("CALL STATUS:", callStatus);
+    console.log("CALLER :", caller);
+    console.log("RECEIVER :", receiver);
+  }, [caller, receiver, callStatus]);
 
   useEffect(() => {
     if (!socket) return;

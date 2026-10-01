@@ -22,7 +22,18 @@ export const CallStatusContext = createContext({
   callStatus: "",
   setCallStatus: () => [],
 });
+
 export const CallerContext = createContext({
   caller: "",
   setCaller: () => [],
+});
+
+export const ReceiverContext = createContext({
+  receiver: "",
+  setReceiver: () => [],
+});
+
+export const CurrentCallContext = createContext({
+  currentCall: "",
+  setCurrentCall: () => [],
 });
