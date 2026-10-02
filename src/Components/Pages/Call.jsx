@@ -1,5 +1,4 @@
 import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeOff } from "lucide-react";
-
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -30,7 +29,7 @@ export default function CallPage({ socket }) {
         const response = await fetch(
           `http://localhost:1111/call/${conversationId}`,
           {
-            method: "POST",
+            method: "GET",
             credentials: "include",
           },
         );
@@ -81,6 +80,8 @@ export default function CallPage({ socket }) {
     if (receiverId === currentUserId) {
       return caller;
     }
+
+    return null;
   };
 
   useEffect(() => {
@@ -96,12 +97,11 @@ export default function CallPage({ socket }) {
   }, [callStatus]);
 
   const hours = Math.floor(duration / 3600);
-
   const minutes = Math.floor((duration % 3600) / 60);
-
   const seconds = duration % 60;
 
   const callUser = getCallUser();
+
   console.log("callUser:", callUser);
 
   return (
@@ -193,8 +193,6 @@ export default function CallPage({ socket }) {
 
                   <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-16 sm:pb-8">
                     <div className="flex items-center gap-3 rounded-full bg-black/50 px-4 py-3 backdrop-blur-xl sm:gap-4 sm:px-6">
-                      {/* MIC */}
-
                       <button
                         onClick={() => setMicOn((prev) => !prev)}
                         className={`flex h-12 w-12 items-center justify-center rounded-full transition sm:h-14 sm:w-14 ${
@@ -205,8 +203,6 @@ export default function CallPage({ socket }) {
                       >
                         {micOn ? <Mic size={20} /> : <MicOff size={20} />}
                       </button>
-
-                      {/* SPEAKER */}
 
                       <button
                         onClick={() => setOnSpeaker((prev) => !prev)}
@@ -222,8 +218,6 @@ export default function CallPage({ socket }) {
                           <VolumeOff size={20} />
                         )}
                       </button>
-
-                      {/* END */}
 
                       <button
                         onClick={() => setCallStatus("ended")}
@@ -324,7 +318,12 @@ export default function CallPage({ socket }) {
                           <p>
                             {hours === 0 && minutes === 0 && seconds === 0
                               ? "No Answer"
-                              : `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`}
+                              : `${String(hours).padStart(2, "0")}:${String(
+                                  minutes,
+                                ).padStart(2, "0")}:${String(seconds).padStart(
+                                  2,
+                                  "0",
+                                )}`}
                           </p>
                         </div>
                       </div>

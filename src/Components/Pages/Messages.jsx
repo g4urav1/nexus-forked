@@ -40,6 +40,37 @@ export default function MessagesPage({ socket }) {
     });
   }, [activeChat]);
 
+  const Call = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:1111/call/${conversationId}`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Failed to get call details");
+        return;
+      }
+
+      const data = await response.json();
+
+      console.log("CALL DATA:", data);
+
+      if (data.callerDetails) {
+        setCaller(data.callerDetails);
+      }
+
+      if (data.receiverDetails) {
+        setReceiver(data.receiverDetails);
+      }
+    } catch (error) {
+      console.error("Failed to get call details:", error);
+    }
+  };
+
   useEffect(() => {
     setActiveChatId(conversationId || "");
 
@@ -426,7 +457,7 @@ export default function MessagesPage({ socket }) {
                   <button
                     onClick={() => {
                       if (confirm(`call ${getChatName(activeChat)}`)) {
-                        setCallStatus("calling");
+                        Call();
                         navigate(`/call/${conversationId}`);
                       }
                     }}
