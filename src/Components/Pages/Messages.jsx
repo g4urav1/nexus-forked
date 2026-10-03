@@ -2,7 +2,11 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
-import { CallStatusContext } from "../context/context";
+import {
+  CallerContext,
+  CallStatusContext,
+  ReceiverContext,
+} from "../context/context";
 
 export default function MessagesPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
@@ -28,7 +32,8 @@ export default function MessagesPage({ socket }) {
   const [messageSkip, setMessageSkip] = useState(0);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
-  const { setCallStatus } = useContext(CallStatusContext);
+  const { setCaller } = useContext(CallerContext);
+  const { setReceiver } = useContext(ReceiverContext);
 
   const activeChat = conversations.find(
     (chat) => chat.conversationId === activeChatId,

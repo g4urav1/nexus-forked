@@ -3,6 +3,7 @@ import {
   CallerContext,
   CallStatusContext,
   CurrentCallContext,
+  ReceiverContext,
 } from "../context/context";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +13,7 @@ export default function CallNotification({ socket }) {
   const navigate = useNavigate();
 
   const { caller } = useContext(CallerContext);
+  const { receiver } = useContext(ReceiverContext);
   const { callStatus } = useContext(CallStatusContext);
   const { currentCall } = useContext(CurrentCallContext);
 
@@ -30,6 +32,12 @@ export default function CallNotification({ socket }) {
   const hours = Math.floor(duration / 3600);
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = duration % 60;
+
+  const adminId = localStorage.getItem("adminId");
+
+  const callerId = caller?._id?.toString();
+
+  const isCaller = adminId !== callerId;
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -52,7 +60,7 @@ export default function CallNotification({ socket }) {
                 <div className="w-full flex items-center justify-center gap-3 py-3">
                   <div className="text-center flex items-center gap-2">
                     <p className="font-semibold">
-                      {caller.Username || "Unknown User"}
+                      {isCaller ? caller.Username : receiver.Username}
                     </p>
 
                     <span>•</span>

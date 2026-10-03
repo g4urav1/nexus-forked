@@ -1,5 +1,5 @@
 import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeOff } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import {
@@ -104,24 +104,49 @@ export default function CallPage({ socket }) {
 
   console.log("callUser:", callUser);
 
+  const [stream, setStream] = useState(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
         <div className="flex min-h-[100dvh] w-full items-center justify-center p-2 sm:p-4 lg:p-6">
           <main className="relative isolate flex h-[calc(100dvh-1rem)] w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800/80 dark:bg-slate-900 sm:h-[calc(100dvh-2rem)] sm:rounded-3xl lg:h-[calc(100dvh-3rem)]">
+            ]
+            <div className="fixed top-0 left-0 w-full h-screen bg-black/80 flex justify-center items-center">
+              <video
+                ref={videoRef}
+                src=""
+                className="w-auto h-[80vh] border-2 border-white"
+              ></video>
+            </div>
             {callUser?.Pfp && (
               <>
                 <div
                   className="absolute inset-0 z-0 scale-110 bg-cover bg-center blur-2xl"
                   style={{
-                    backgroundImage: `url(${callUser.Pfp})`,
+                    backgroundImage: `url(${callUser.Pfp || `https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg`})`,
                   }}
                 />
 
                 <div className="absolute inset-0 z-0 bg-black/60" />
               </>
             )}
-
             <div className="relative z-10 h-full w-full">
               {callStatus === "incoming" && (
                 <div className="relative h-full w-full">
@@ -174,7 +199,10 @@ export default function CallPage({ socket }) {
                   {callUser && (
                     <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 text-center">
                       <img
-                        src={callUser.Pfp || ""}
+                        src={
+                          callUser.Pfp ||
+                          `https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg`
+                        }
                         alt={callUser.Username || "User"}
                         className="h-24 w-24 rounded-full object-cover ring-4 ring-slate-700 sm:h-28 sm:w-28 md:h-32 md:w-32"
                       />

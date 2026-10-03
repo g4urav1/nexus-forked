@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { AdminContext } from "../context/context";
@@ -130,6 +130,29 @@ export default function FeedPage({ socket }) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLikes = ({ postId, likes }) => {
+      setPosts((posts) =>
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                Likes: likes,
+              }
+            : post,
+        ),
+      );
+    };
+
+    socket.on("getLikes", handleLikes);
+
+    return () => {
+      socket.off("getLikes", handleLikes);
+    };
+  }, [socket]);
 
   return (
     <div className={darkMode ? "dark" : ""}>

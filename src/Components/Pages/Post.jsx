@@ -137,6 +137,25 @@ export default function Post({ socket }) {
     }
   };
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLikes = ({ postId, likes }) => {
+      if (post?._id !== postId) return;
+
+      setPost((prev) => ({
+        ...prev,
+        Likes: likes,
+      }));
+    };
+
+    socket.on("getLikes", handleLikes);
+
+    return () => {
+      socket.off("getLikes", handleLikes);
+    };
+  }, [socket, post?._id]);
+
   const handleAddComment = async (e) => {
     e.preventDefault();
 
