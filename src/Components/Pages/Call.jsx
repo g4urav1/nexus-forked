@@ -12,6 +12,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import {
+  AdminContext,
   CallerContext,
   CallStatusContext,
   ReceiverContext,
@@ -21,6 +22,7 @@ export default function CallPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
 
   const adminId = localStorage.getItem("adminId");
+  const { admin } = useContext(AdminContext);
   const { conversationId } = useParams();
 
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
@@ -160,7 +162,6 @@ export default function CallPage({ socket }) {
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
         <div className="flex min-h-[100dvh] w-full items-center justify-center p-2 sm:p-4 lg:p-6">
           <main className="relative isolate flex h-[calc(100dvh-1rem)] w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-200/80 bg-black shadow-sm dark:border-slate-800/80 sm:h-[calc(100dvh-2rem)] sm:rounded-3xl lg:h-[calc(100dvh-3rem)]">
-            {/* Call background */}
             {callUser?.Pfp && (
               <>
                 <div
@@ -277,7 +278,7 @@ export default function CallPage({ socket }) {
               {callStatus === "incoming" && (
                 <div className="relative flex h-full w-full flex-col">
                   {/* Local camera preview */}
-                  <div className="absolute right-4 top-4 z-30 h-32 w-24 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
+                  <div className="absolute overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
                     <video
                       ref={videoRef}
                       autoPlay
@@ -365,13 +366,23 @@ export default function CallPage({ socket }) {
 
                   {/* Own camera */}
                   <div className="absolute bottom-24 left-4 z-30 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-44 sm:w-32 md:h-48 md:w-36">
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      muted
-                      playsInline
-                      className="h-full w-full object-cover scale-x-[-1]"
-                    />
+                    {camOn ? (
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        muted
+                        playsInline
+                        className="h-full w-full object-cover scale-x-[-1]"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex justify-center items-center">
+                        <img
+                          src={admin.Pfp || ""}
+                          alt={admin.Username || "User"}
+                          className="h-24 w-24 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-24 sm:w-24 md:h-30 md:w-30"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Controls */}
@@ -386,6 +397,17 @@ export default function CallPage({ socket }) {
                         }`}
                       >
                         {micOn ? <Mic size={20} /> : <MicOff size={20} />}
+                      </button>
+
+                      <button
+                        onClick={() => setCamOn((prev) => !prev)}
+                        className={`flex h-12 w-12 items-center justify-center rounded-full transition sm:h-14 sm:w-14 ${
+                          camOn
+                            ? "bg-white/10 hover:bg-white/20"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
+                      >
+                        {camOn ? <Video size={20} /> : <VideoOff size={20} />}
                       </button>
 
                       <button
