@@ -1,4 +1,13 @@
-import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeOff } from "lucide-react";
+import {
+  Mic,
+  MicOff,
+  Phone,
+  PhoneOff,
+  Video,
+  VideoOff,
+  Volume2,
+  VolumeOff,
+} from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -21,6 +30,7 @@ export default function CallPage({ socket }) {
 
   const [duration, setDuration] = useState(0);
   const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
   const [OnSpeaker, setOnSpeaker] = useState(false);
 
   useEffect(() => {
@@ -108,119 +118,113 @@ export default function CallPage({ socket }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    (async () => {
+    const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
+
+        setStream(mediaStream);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
       } catch (error) {
         console.log(error);
       }
-    })();
+    };
+
+    startCamera();
   }, []);
+
+  useEffect(() => {
+    if (!stream || !videoRef.current) return;
+
+    videoRef.current.srcObject = stream;
+    videoRef.current.play().catch(() => {});
+  }, [stream, callStatus, camOn]);
+
+  useEffect(() => {
+    if (!stream) return;
+
+    const videoTrack = stream.getVideoTracks()[0];
+
+    if (videoTrack) {
+      videoTrack.enabled = camOn;
+    }
+  }, [stream, camOn]);
 
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
         <div className="flex min-h-[100dvh] w-full items-center justify-center p-2 sm:p-4 lg:p-6">
-          <main className="relative isolate flex h-[calc(100dvh-1rem)] w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800/80 dark:bg-slate-900 sm:h-[calc(100dvh-2rem)] sm:rounded-3xl lg:h-[calc(100dvh-3rem)]">
-            ]
-            <div className="fixed top-0 left-0 w-full h-screen bg-black/80 flex justify-center items-center">
-              <video
-                ref={videoRef}
-                src=""
-                className="w-auto h-[80vh] border-2 border-white"
-              ></video>
-            </div>
+          <main className="relative isolate flex h-[calc(100dvh-1rem)] w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-200/80 bg-black shadow-sm dark:border-slate-800/80 sm:h-[calc(100dvh-2rem)] sm:rounded-3xl lg:h-[calc(100dvh-3rem)]">
+            {/* Call background */}
             {callUser?.Pfp && (
               <>
                 <div
-                  className="absolute inset-0 z-0 scale-110 bg-cover bg-center blur-2xl"
+                  className="absolute inset-0 z-0 scale-110 bg-cover bg-center blur-3xl"
                   style={{
-                    backgroundImage: `url(${callUser.Pfp || `https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg`})`,
+                    backgroundImage: `url(${callUser.Pfp})`,
                   }}
                 />
-
-                <div className="absolute inset-0 z-0 bg-black/60" />
+                <div className="absolute inset-0 z-0 bg-black/70" />
               </>
             )}
+
             <div className="relative z-10 h-full w-full">
-              {callStatus === "incoming" && (
-                <div className="relative h-full w-full">
-                  {callUser && (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 text-center">
-                      <img
-                        src={callUser.Pfp || ""}
-                        alt={callUser.Username || "User"}
-                        className="h-24 w-24 rounded-full object-cover ring-4 ring-slate-700 sm:h-28 sm:w-28 md:h-32 md:w-32"
-                      />
-
-                      <div>
-                        <h2 className="text-lg font-semibold sm:text-xl">
-                          {callUser.Username || "Unknown User"}
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Incoming call...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-16 sm:pb-8">
-                    <div className="flex items-center space-x-10 rounded-full bg-black/50 px-4 py-3 backdrop-blur-xl sm:gap-4 sm:px-6 md:space-x-32">
-                      <button
-                        onClick={() => {
-                          setCallStatus("rejected");
-                        }}
-                        className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 transition hover:bg-red-700 sm:h-14 sm:w-14"
-                      >
-                        <PhoneOff size={20} />
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setCallStatus("OnCall");
-                        }}
-                        className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600 transition hover:bg-green-700 sm:h-14 sm:w-14"
-                      >
-                        <Phone size={20} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+              {/* CALLING */}
               {callStatus === "calling" && (
-                <div className="relative h-full w-full">
-                  {callUser && (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 text-center">
-                      <img
-                        src={
-                          callUser.Pfp ||
-                          `https://i.pinimg.com/736x/02/59/54/0259543779b1c2db9ba9d62d47e11880.jpg`
-                        }
-                        alt={callUser.Username || "User"}
-                        className="h-24 w-24 rounded-full object-cover ring-4 ring-slate-700 sm:h-28 sm:w-28 md:h-32 md:w-32"
+                <div className="relative flex h-full w-full flex-col">
+                  {/* User information */}
+                  <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 pb-32 text-center">
+                    {callUser && (
+                      <>
+                        <img
+                          src={callUser.Pfp || ""}
+                          alt={callUser.Username || "User"}
+                          className="h-24 w-24 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-28 sm:w-28 md:h-32 md:w-32"
+                        />
+
+                        <div>
+                          <h2 className="text-lg font-semibold text-white sm:text-xl">
+                            {callUser.Username || "Unknown User"}
+                          </h2>
+
+                          <p className="mt-1 text-sm text-slate-300">
+                            Calling...
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Local camera preview */}
+
+                  <div className="absolute right-4 top-4 z-30 h-32 w-24 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
+                    {camOn ? (
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        muted
+                        playsInline
+                        className="h-full w-full object-cover scale-x-[-1]"
                       />
-
-                      <div>
-                        <h2 className="text-lg font-semibold sm:text-xl">
-                          {callUser.Username || "Unknown User"}
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Calling...
-                        </p>
+                    ) : (
+                      <div className="w-full h-full flex justify-center items-center">
+                        <img
+                          src={caller.Pfp || ""}
+                          alt={caller.Username || "User"}
+                          className="h-24 w-24 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-24 sm:w-24 md:h-30 md:w-30"
+                        />
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-16 sm:pb-8">
-                    <div className="flex items-center gap-3 rounded-full bg-black/50 px-4 py-3 backdrop-blur-xl sm:gap-4 sm:px-6">
+                  {/* Controls */}
+                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-6 pt-20 sm:pb-8">
+                    <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-4 py-3 shadow-2xl backdrop-blur-xl sm:gap-4 sm:px-6">
                       <button
                         onClick={() => setMicOn((prev) => !prev)}
                         className={`flex h-12 w-12 items-center justify-center rounded-full transition sm:h-14 sm:w-14 ${
@@ -230,6 +234,17 @@ export default function CallPage({ socket }) {
                         }`}
                       >
                         {micOn ? <Mic size={20} /> : <MicOff size={20} />}
+                      </button>
+
+                      <button
+                        onClick={() => setCamOn((prev) => !prev)}
+                        className={`flex h-12 w-12 items-center justify-center rounded-full transition sm:h-14 sm:w-14 ${
+                          camOn
+                            ? "bg-white/10 hover:bg-white/20"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
+                      >
+                        {camOn ? <Video size={20} /> : <VideoOff size={20} />}
                       </button>
 
                       <button
@@ -258,22 +273,86 @@ export default function CallPage({ socket }) {
                 </div>
               )}
 
+              {/* INCOMING */}
+              {callStatus === "incoming" && (
+                <div className="relative flex h-full w-full flex-col">
+                  {/* Local camera preview */}
+                  <div className="absolute right-4 top-4 z-30 h-32 w-24 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="h-full w-full object-cover scale-x-[-1]"
+                    />
+                  </div>
+
+                  {/* Caller information */}
+                  <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 pb-32 text-center">
+                    {callUser && (
+                      <>
+                        <img
+                          src={callUser.Pfp || ""}
+                          alt={callUser.Username || "User"}
+                          className="h-24 w-24 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-28 sm:w-28 md:h-32 md:w-32"
+                        />
+
+                        <div>
+                          <h2 className="text-lg font-semibold text-white sm:text-xl">
+                            {callUser.Username || "Unknown User"}
+                          </h2>
+
+                          <p className="mt-1 text-sm text-slate-300">
+                            Incoming call...
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Incoming controls */}
+                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-6 pt-20 sm:pb-8">
+                    <div className="flex items-center gap-12 rounded-full border border-white/10 bg-black/50 px-5 py-3 shadow-2xl backdrop-blur-xl sm:gap-16 sm:px-7">
+                      <button
+                        onClick={() => {
+                          setCallStatus("rejected");
+                        }}
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg transition hover:scale-105 hover:bg-red-700 active:scale-95 sm:h-16 sm:w-16"
+                      >
+                        <PhoneOff size={21} />
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setCallStatus("OnCall");
+                        }}
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-600 shadow-lg transition hover:scale-105 hover:bg-green-700 active:scale-95 sm:h-16 sm:w-16"
+                      >
+                        <Phone size={21} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ON CALL */}
               {callStatus === "OnCall" && (
                 <div className="relative h-full w-full">
+                  {/* Other user's profile */}
                   {callUser && (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 text-center">
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 pb-28 text-center">
                       <img
                         src={callUser.Pfp || ""}
                         alt={callUser.Username || "User"}
-                        className="h-24 w-24 rounded-full object-cover ring-4 ring-slate-700 sm:h-28 sm:w-28 md:h-32 md:w-32"
+                        className="h-28 w-28 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-32 sm:w-32 md:h-36 md:w-36"
                       />
 
                       <div>
-                        <h2 className="text-lg font-semibold sm:text-xl">
+                        <h2 className="text-lg font-semibold text-white sm:text-xl">
                           {callUser.Username || "Unknown User"}
                         </h2>
 
-                        <div className="mt-1 text-sm text-slate-400">
+                        <div className="mt-1 text-sm text-slate-300">
                           <p>
                             {String(hours).padStart(2, "0")}:
                             {String(minutes).padStart(2, "0")}:
@@ -284,8 +363,20 @@ export default function CallPage({ socket }) {
                     </div>
                   )}
 
-                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/80 to-transparent px-4 pb-6 pt-16 sm:pb-8">
-                    <div className="flex items-center gap-3 rounded-full bg-black/50 px-4 py-3 backdrop-blur-xl sm:gap-4 sm:px-6">
+                  {/* Own camera */}
+                  <div className="absolute bottom-24 left-4 z-30 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-44 sm:w-32 md:h-48 md:w-36">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="h-full w-full object-cover scale-x-[-1]"
+                    />
+                  </div>
+
+                  {/* Controls */}
+                  <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-6 pt-20 sm:pb-8">
+                    <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-4 py-3 shadow-2xl backdrop-blur-xl sm:gap-4 sm:px-6">
                       <button
                         onClick={() => setMicOn((prev) => !prev)}
                         className={`flex h-12 w-12 items-center justify-center rounded-full transition sm:h-14 sm:w-14 ${
@@ -314,7 +405,7 @@ export default function CallPage({ socket }) {
 
                       <button
                         onClick={() => setCallStatus("ended")}
-                        className="flex h-12 w-14 items-center justify-center rounded-full bg-red-500 transition hover:bg-red-600 sm:h-14 sm:w-16"
+                        className="flex h-12 w-14 items-center justify-center rounded-full bg-red-500 transition hover:bg-red-600 active:scale-95 sm:h-14 sm:w-16"
                       >
                         <PhoneOff size={21} />
                       </button>
@@ -323,6 +414,7 @@ export default function CallPage({ socket }) {
                 </div>
               )}
 
+              {/* ENDED — unchanged */}
               {callStatus === "ended" && (
                 <div className="absolute inset-0 bg-black/75">
                   {callUser && (
