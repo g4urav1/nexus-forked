@@ -12,7 +12,7 @@ export default function CallNotification({ socket }) {
 
   const navigate = useNavigate();
 
-  const { caller } = useContext(CallerContext);
+  const { caller, setCaller } = useContext(CallerContext);
   const { receiver } = useContext(ReceiverContext);
   const { callStatus } = useContext(CallStatusContext);
   const { currentCall } = useContext(CurrentCallContext);
@@ -38,6 +38,18 @@ export default function CallNotification({ socket }) {
   const callerId = caller?._id?.toString();
 
   const isCaller = adminId !== callerId;
+
+  useEffect(() => {
+    if (callStatus !== "ended") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCaller(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [callStatus]);
 
   return (
     <div className={darkMode ? "dark" : ""}>

@@ -13,6 +13,8 @@ import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
 import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
+
+import { Peer } from "peerjs";
 import {
   AdminContext,
   UserPostContext,
@@ -48,6 +50,34 @@ export default function App() {
       // socket.on("welcome", (data) => alert(data));
       socket.on("randomRouteHit", (data) => console.log(data));
     })();
+  }, []);
+
+  useEffect(() => {
+    const peer = new Peer();
+
+    peer.on("open", (id) => {
+      console.log("Peer id: ", id);
+      (async () => {
+        try {
+          let response = await fetch("http://localhost:1111/connect/peer", {
+            body: JSON.stringify({ peerId: id }),
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            credentials: "include",
+          });
+
+          if (!response.ok) throw new Error("Something went wrong!");
+
+          console.log("Peer connected!");
+        } catch (error) {
+          console.log(error);
+        }
+      })();
+    });
+
+    return () => {
+      peer.destroy();
+    };
   }, []);
 
   const router = createBrowserRouter([

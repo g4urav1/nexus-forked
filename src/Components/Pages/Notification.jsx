@@ -31,6 +31,8 @@ export default function NotificationPage({ socket }) {
     socket.on("sendNotification", getNotifications);
   }, [socket]);
 
+  
+
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
 

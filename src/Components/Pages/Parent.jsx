@@ -35,22 +35,22 @@ export default function Parent({ socket }) {
     }
   }, [callStatus]);
 
-  useEffect(() => {
-    const audio = new Audio(callSound);
+  // useEffect(() => {
+  //   const audio = new Audio(callSound);
 
-    if (callStatus === "calling" || callStatus === "incoming") {
-      audio.loop = true;
+  //   if (callStatus === "calling" || callStatus === "incoming") {
+  //     audio.loop = true;
 
-      audio.play().catch((err) => {
-        console.log("Call audio blocked:", err);
-      });
-    }
+  //     audio.play().catch((err) => {
+  //       console.log("Call audio blocked:", err);
+  //     });
+  //   }
 
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, [callStatus]);
+  //   return () => {
+  //     audio.pause();
+  //     audio.currentTime = 0;
+  //   };
+  // }, [callStatus]);
 
   useEffect(() => {
     if (!socket || !adminId) return;
@@ -77,12 +77,6 @@ export default function Parent({ socket }) {
       socket.off("GetCall", GetCall);
     };
   }, [socket, adminId, setCaller, setReceiver, setCallStatus, setCurrentCall]);
-
-  useEffect(() => {
-    console.log("CALL STATUS:", callStatus);
-    console.log("CALLER :", caller);
-    console.log("RECEIVER :", receiver);
-  }, [caller, receiver, callStatus]);
 
   useEffect(() => {
     if (!socket) return;

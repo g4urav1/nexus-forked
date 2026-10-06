@@ -9,7 +9,7 @@ import {
   VolumeOff,
 } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   AdminContext,
@@ -29,6 +29,39 @@ export default function CallPage({ socket }) {
 
   const { caller, setCaller } = useContext(CallerContext);
   const { receiver, setReceiver } = useContext(ReceiverContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const wasReloaded = sessionStorage.getItem(`callEnded_${conversationId}`);
+
+    if (wasReloaded === "true") {
+      sessionStorage.removeItem(`callEnded_${conversationId}`);
+      setCallStatus("ended");
+    }
+
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem(`callEnded_${conversationId}`, "true");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [conversationId, setCallStatus]);
+
+  useEffect(() => {
+    if (callStatus !== "ended") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      navigate(-1);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [callStatus, navigate]);
 
   const [duration, setDuration] = useState(0);
   const [micOn, setMicOn] = useState(true);
@@ -469,16 +502,6 @@ export default function CallPage({ socket }) {
                           </p>
                         </div>
                       </div>
-
-                      <button
-                        onClick={() => {
-                          setDuration(0);
-                          setCallStatus("calling");
-                        }}
-                        className="rounded-xl bg-indigo-600 p-2 text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-700 active:scale-95 sm:p-2.5"
-                      >
-                        Call Again
-                      </button>
                     </div>
                   )}
                 </div>

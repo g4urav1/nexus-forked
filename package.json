@@ -12,6 +12,7 @@
   "dependencies": {
     "dom": "^0.0.3",
     "lucide-react": "^1.25.0",
+    "peerjs": "^1.5.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0",
