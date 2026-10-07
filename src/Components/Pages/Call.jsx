@@ -190,6 +190,44 @@ export default function CallPage({ socket }) {
     }
   }, [stream, camOn]);
 
+  const updateCallStatus = async (status) => {
+    try {
+      const response = await fetch(
+        `http://localhost:1111/call/${conversationId}/status`,
+        {
+          method: "Post",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status,
+          }),
+        },
+      );
+      const data = response.json;
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdateStatus = (data) => {
+      {
+        setCallStatus(data.status);
+      }
+    };
+
+    socket.on("updateStatus", handleUpdateStatus);
+
+    return () => {
+      socket.off("updateStatus", handleUpdateStatus);
+    };
+  }, [socket, setCallStatus, callStatus]);
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
@@ -297,7 +335,9 @@ export default function CallPage({ socket }) {
                       </button>
 
                       <button
-                        onClick={() => setCallStatus("ended")}
+                        onClick={() => {
+                          updateCallStatus("ended");
+                        }}
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 transition hover:bg-red-700 sm:h-14 sm:w-14"
                       >
                         <PhoneOff size={20} />
@@ -349,7 +389,7 @@ export default function CallPage({ socket }) {
                     <div className="flex items-center gap-12 rounded-full border border-white/10 bg-black/50 px-5 py-3 shadow-2xl backdrop-blur-xl sm:gap-16 sm:px-7">
                       <button
                         onClick={() => {
-                          setCallStatus("rejected");
+                          updateCallStatus("ended");
                         }}
                         className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg transition hover:scale-105 hover:bg-red-700 active:scale-95 sm:h-16 sm:w-16"
                       >
@@ -358,7 +398,7 @@ export default function CallPage({ socket }) {
 
                       <button
                         onClick={() => {
-                          setCallStatus("OnCall");
+                          updateCallStatus("OnCall");
                         }}
                         className="flex h-14 w-14 items-center justify-center rounded-full bg-green-600 shadow-lg transition hover:scale-105 hover:bg-green-700 active:scale-95 sm:h-16 sm:w-16"
                       >

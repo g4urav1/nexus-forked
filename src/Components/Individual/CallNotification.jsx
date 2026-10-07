@@ -46,63 +46,65 @@ export default function CallNotification({ socket }) {
 
     const timer = setTimeout(() => {
       setCaller(null);
-    }, 4000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [callStatus]);
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="absolute z-50 w-full">
-        {caller && (
-          <div
-            onClick={() => {
-              navigate(`/call/${currentCall.conversationId}`);
-            }}
-            className="
+      {callStatus != null && (
+        <div className="absolute z-50 w-full">
+          {caller && (
+            <div
+              onClick={() => {
+                navigate(`/call/${currentCall.conversationId}`);
+              }}
+              className="
             md:w-1/5 w-full rounded-full mt-3 mx-auto
             bg-gradient-to-tr from-indigo-600 to-violet-500
             shadow-[0_10px_30px_rgba(99,102,241,0.35)]
             border border-white/20
             transition-all duration-300
           "
-          >
-            <main>
-              <div className="w-full">
-                <div className="w-full flex items-center justify-center gap-3 py-3">
-                  <div className="text-center flex items-center gap-2">
-                    <p className="font-semibold">
-                      {isCaller ? caller.Username : receiver.Username}
-                    </p>
-
-                    <span>•</span>
-
-                    {callStatus === "incoming" && (
-                      <p className="text-sm text-slate-300">Incoming Call</p>
-                    )}
-
-                    {callStatus === "calling" && (
-                      <p className="text-sm text-slate-300">Calling...</p>
-                    )}
-
-                    {callStatus === "OnCall" && (
-                      <p className="text-sm text-slate-300">
-                        {String(hours).padStart(2, "0")}:
-                        {String(minutes).padStart(2, "0")}:
-                        {String(seconds).padStart(2, "0")}
+            >
+              <main>
+                <div className="w-full">
+                  <div className="w-full flex items-center justify-center gap-3 py-3">
+                    <div className="text-center flex items-center gap-2">
+                      <p className="font-semibold">
+                        {isCaller ? caller.Username : receiver.Username}
                       </p>
-                    )}
 
-                    {callStatus === "ended" && (
-                      <p className="text-sm text-slate-100">Ended</p>
-                    )}
+                      <span>•</span>
+
+                      {callStatus === "incoming" && (
+                        <p className="text-sm text-slate-300">Incoming Call</p>
+                      )}
+
+                      {callStatus === "calling" && (
+                        <p className="text-sm text-slate-300">Calling...</p>
+                      )}
+
+                      {callStatus === "OnCall" && (
+                        <p className="text-sm text-slate-300">
+                          {String(hours).padStart(2, "0")}:
+                          {String(minutes).padStart(2, "0")}:
+                          {String(seconds).padStart(2, "0")}
+                        </p>
+                      )}
+
+                      {callStatus === "ended" && (
+                        <p className="text-sm text-slate-100">Ended</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </main>
-          </div>
-        )}
-      </div>
+              </main>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
