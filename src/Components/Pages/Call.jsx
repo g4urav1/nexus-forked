@@ -86,8 +86,6 @@ export default function CallPage({ socket }) {
 
         const data = await response.json();
 
-        console.log("CALL DATA:", data);
-
         if (data.callerDetails) {
           setCaller(data.callerDetails);
         }
@@ -147,8 +145,6 @@ export default function CallPage({ socket }) {
 
   const callUser = getCallUser();
 
-  console.log("callUser:", callUser);
-
   const [stream, setStream] = useState(null);
   const videoRef = useRef(null);
 
@@ -206,7 +202,6 @@ export default function CallPage({ socket }) {
         },
       );
       const data = response.json;
-      console.log(data);
     } catch (error) {
       console.log(error);
     }

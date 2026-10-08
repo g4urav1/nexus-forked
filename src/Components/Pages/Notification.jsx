@@ -17,7 +17,7 @@ export default function NotificationPage({ socket }) {
       setNotification(data);
     } catch (error) {
       console.log(error);
-      alert(data.message);
+      alert("Failed to fetch notifications");
     }
   };
 

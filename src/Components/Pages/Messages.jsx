@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   CallerContext,
   CallStatusContext,
+  PeerContext,
   ReceiverContext,
 } from "../context/context";
 
@@ -35,6 +36,8 @@ export default function MessagesPage({ socket }) {
   const { setCaller } = useContext(CallerContext);
   const { setReceiver } = useContext(ReceiverContext);
 
+  const { peerId } = useContext(PeerContext);
+
   const activeChat = conversations.find(
     (chat) => chat.conversationId === activeChatId,
   );
@@ -62,8 +65,6 @@ export default function MessagesPage({ socket }) {
 
       const data = await response.json();
 
-      console.log("CALL DATA:", data);
-
       if (data.callerDetails) {
         setCaller(data.callerDetails);
       }
@@ -73,6 +74,32 @@ export default function MessagesPage({ socket }) {
       }
     } catch (error) {
       console.error("Failed to get call details:", error);
+    }
+    SendPeer();
+  };
+
+  const SendPeer = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:1111/call/${conversationId}/sendPeer`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            peer: peerId,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Failed to send peer details");
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to send peer details:", error);
     }
   };
 
@@ -96,7 +123,6 @@ export default function MessagesPage({ socket }) {
         if (prev.some((message) => message._id === newMessage._id)) {
           return prev;
         }
-
         return [...prev, newMessage];
       });
     };

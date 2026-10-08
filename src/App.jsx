@@ -24,6 +24,7 @@ import {
   CallerContext,
   ReceiverContext,
   CurrentCallContext,
+  PeerContext,
 } from "./Components/context/context";
 import NotificationPage from "./Components/Pages/Notification";
 import FollowersPage from "./Components/Pages/Followers";
@@ -38,10 +39,14 @@ export default function App() {
   const [popUpMsg, setPopUpMsg] = useState("");
   const [callStatus, setCallStatus] = useState("");
 
+  const adminId = localStorage.getItem("adminId");
+
   const [caller, setCaller] = useState();
   const [receiver, setReceiver] = useState();
   const [currentCall, setCurrentCall] = useState();
   const [socket, setSocket] = useState(null);
+
+  const [peerId, setPeerId] = useState("");
 
   useEffect(() => {
     (() => {
@@ -57,6 +62,8 @@ export default function App() {
 
     peer.on("open", (id) => {
       console.log("Peer id: ", id);
+      setPeerId(id);
+
       (async () => {
         try {
           let response = await fetch("http://localhost:1111/connect/peer", {
@@ -79,6 +86,22 @@ export default function App() {
       peer.destroy();
     };
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSendPeer = (data) => {
+      if (String(adminId) !== String(data.participant)) {
+        console.log("Received peer:", data.peer);
+      }
+    };
+
+    socket.on("sendPeer", handleSendPeer);
+
+    return () => {
+      socket.off("sendPeer", handleSendPeer);
+    };
+  }, [socket, adminId]);
 
   const router = createBrowserRouter([
     {
@@ -134,6 +157,7 @@ export default function App() {
   useEffect(() => {
     if (
       window.location.pathname !== "/login" &&
+      window.location.pathname !== "/forget-password" &&
       window.location.pathname !== "/signup"
     ) {
       loadUser();
@@ -141,22 +165,24 @@ export default function App() {
   }, []);
 
   return (
-    <CurrentCallContext.Provider value={{ currentCall, setCurrentCall }}>
-      <ReceiverContext.Provider value={{ receiver, setReceiver }}>
-        <CallerContext.Provider value={{ caller, setCaller }}>
-          <CallStatusContext.Provider value={{ callStatus, setCallStatus }}>
-            <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
-              <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
-                <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
-                  <AdminContext.Provider value={{ admin, setAdmin }}>
-                    <RouterProvider router={router} />
-                  </AdminContext.Provider>
-                </UserPostContext.Provider>
-              </PopUpContext.Provider>
-            </PopUpMsgContext.Provider>
-          </CallStatusContext.Provider>
-        </CallerContext.Provider>
-      </ReceiverContext.Provider>
-    </CurrentCallContext.Provider>
+    <PeerContext.Provider value={{ peerId, setPeerId }}>
+      <CurrentCallContext.Provider value={{ currentCall, setCurrentCall }}>
+        <ReceiverContext.Provider value={{ receiver, setReceiver }}>
+          <CallerContext.Provider value={{ caller, setCaller }}>
+            <CallStatusContext.Provider value={{ callStatus, setCallStatus }}>
+              <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
+                <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
+                  <UserPostContext.Provider value={{ UserPosts, setUserPosts }}>
+                    <AdminContext.Provider value={{ admin, setAdmin }}>
+                      <RouterProvider router={router} />
+                    </AdminContext.Provider>
+                  </UserPostContext.Provider>
+                </PopUpContext.Provider>
+              </PopUpMsgContext.Provider>
+            </CallStatusContext.Provider>
+          </CallerContext.Provider>
+        </ReceiverContext.Provider>
+      </CurrentCallContext.Provider>
+    </PeerContext.Provider>
   );
 }

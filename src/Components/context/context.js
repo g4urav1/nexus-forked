@@ -37,3 +37,5 @@ export const CurrentCallContext = createContext({
   currentCall: "",
   setCurrentCall: () => [],
 });
+
+export const PeerContext = createContext();

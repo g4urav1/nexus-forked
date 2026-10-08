@@ -21,6 +21,28 @@ export default function ProfilePage() {
 
   const [conversationId, setConversationId] = useState("");
 
+  const getLikedPosts = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:1111/likedPosts/${Username}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message);
+        return;
+      }
+
+      setLikedPosts(data.result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getProfile = async () => {
     try {
       const response = await fetch(`http://localhost:1111/user/${Username}`, {
@@ -33,7 +55,6 @@ export default function ProfilePage() {
         console.error(data.message);
         return;
       }
-
 
       setAccountUser(data.user);
 
@@ -174,28 +195,6 @@ export default function ProfilePage() {
       navigate("/login");
     }
     return;
-  };
-
-  const getLikedPosts = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:1111/likedPosts/${Username}`,
-        {
-          credentials: "include",
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error(data.message);
-        return;
-      }
-
-      setLikedPosts(data.result);
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   return (
