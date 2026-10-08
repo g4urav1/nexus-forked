@@ -15,6 +15,7 @@ import {
   AdminContext,
   CallerContext,
   CallStatusContext,
+  PeerContext,
   ReceiverContext,
 } from "../context/context";
 
@@ -26,9 +27,17 @@ export default function CallPage({ socket }) {
   const { conversationId } = useParams();
 
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
-
   const { caller, setCaller } = useContext(CallerContext);
   const { receiver, setReceiver } = useContext(ReceiverContext);
+  const { peerId } = useContext(PeerContext);
+
+  const [duration, setDuration] = useState(0);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(true);
+  const [OnSpeaker, setOnSpeaker] = useState(false);
+
+  const [stream, setStream] = useState(null);
+  const videoRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -62,11 +71,6 @@ export default function CallPage({ socket }) {
 
     return () => clearTimeout(timer);
   }, [callStatus, navigate]);
-
-  const [duration, setDuration] = useState(0);
-  const [micOn, setMicOn] = useState(true);
-  const [camOn, setCamOn] = useState(true);
-  const [OnSpeaker, setOnSpeaker] = useState(false);
 
   useEffect(() => {
     const getCallDetail = async () => {
@@ -145,9 +149,6 @@ export default function CallPage({ socket }) {
 
   const callUser = getCallUser();
 
-  const [stream, setStream] = useState(null);
-  const videoRef = useRef(null);
-
   useEffect(() => {
     const startCamera = async () => {
       try {
@@ -201,6 +202,7 @@ export default function CallPage({ socket }) {
           }),
         },
       );
+
       const data = response.json;
     } catch (error) {
       console.log(error);
@@ -223,6 +225,19 @@ export default function CallPage({ socket }) {
     };
   }, [socket, setCallStatus, callStatus]);
 
+  const sendPeer = async () => {
+    try {
+      await fetch(`http://localhost:1111/call/${conversationId}/sendPeer`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ peer: peerId }),
+      });
+    } catch (error) {
+      console.error("Failed to send peer:", error);
+    }
+  };
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
@@ -236,6 +251,7 @@ export default function CallPage({ socket }) {
                     backgroundImage: `url(${callUser.Pfp})`,
                   }}
                 />
+
                 <div className="absolute inset-0 z-0 bg-black/70" />
               </>
             )}
@@ -268,7 +284,6 @@ export default function CallPage({ socket }) {
                   </div>
 
                   {/* Local camera preview */}
-
                   <div className="absolute right-4 top-4 z-30 h-32 w-24 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
                     {camOn ? (
                       <video
@@ -393,6 +408,7 @@ export default function CallPage({ socket }) {
 
                       <button
                         onClick={() => {
+                          sendPeer();
                           updateCallStatus("OnCall");
                         }}
                         className="flex h-14 w-14 items-center justify-center rounded-full bg-green-600 shadow-lg transition hover:scale-105 hover:bg-green-700 active:scale-95 sm:h-16 sm:w-16"

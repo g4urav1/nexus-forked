@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate } from "react-router-dom";
 
 export default function InboxPage() {
   const [darkMode, setDarkMode] = useState(true);
-
-  const adminId = localStorage.getItem("adminId");
 
   const [activeChatId, setActiveChatId] = useState("");
   const [mobileShowChat, setMobileShowChat] = useState(false);

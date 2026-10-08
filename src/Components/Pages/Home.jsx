@@ -1,14 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { AdminContext } from "../context/context";
 import { Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 export default function FeedPage({ socket }) {
   const [darkMode, setDarkMode] = useState(true);
   const { admin } = useContext(AdminContext);
-  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
 
@@ -19,7 +17,6 @@ export default function FeedPage({ socket }) {
     const data = await response.json();
     setPosts(data);
 
-    console.log(data);
   };
 
   useEffect(() => {
@@ -253,8 +250,6 @@ export default function FeedPage({ socket }) {
               <article
                 key={post._id}
                 onClick={() => {
-                  console.log("CLICKED POST:", post);
-                  console.log("POST ID:", post._id);
                   window.location.href = `/post/${post._id}`;
                 }}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 space-y-3"

@@ -4,11 +4,11 @@ import { AdminContext } from "../context/context";
 
 export default function DesktopNav() {
   const [darkMode, setDarkMode] = useState(true);
-  const [activeChatId, setActiveChatId] = useState(1);
-  const [mobileShowChat, setMobileShowChat] = useState(false); // Mobile state to switch between list & chat
-  const [messageInput, setMessageInput] = useState("");
 
   const navigate = useNavigate();
+
+  const { admin } = useContext(AdminContext);
+
   const handleLogout = async () => {
     if (confirm("Do you want to Logout")) {
       await fetch("http://localhost:1111/logout", {
@@ -20,8 +20,6 @@ export default function DesktopNav() {
     }
     return;
   };
-
-  const { admin } = useContext(AdminContext);
 
   return (
     <aside className="hidden md:flex md:w-20 xl:w-64 flex-col justify-between h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] sticky top-4 lg:top-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-4 shadow-sm shrink-0 overflow-auto pt-0 [&::-webkit-scrollbar]:hidden">

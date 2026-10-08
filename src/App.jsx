@@ -15,6 +15,7 @@ import Post from "./Components/Pages/Post";
 import { useEffect, useState } from "react";
 
 import { Peer } from "peerjs";
+
 import {
   AdminContext,
   UserPostContext,
@@ -32,6 +33,7 @@ import FollowingPage from "./Components/Pages/Following";
 import { io } from "socket.io-client";
 import Parent from "./Components/Pages/Parent";
 import CallPage from "./Components/Pages/Call";
+
 export default function App() {
   const [admin, setAdmin] = useState("");
   const [UserPosts, setUserPosts] = useState([]);
@@ -47,6 +49,7 @@ export default function App() {
   const [socket, setSocket] = useState(null);
 
   const [peerId, setPeerId] = useState("");
+  const [remotePeerId, setRemotePeerId] = useState("");
 
   useEffect(() => {
     (() => {
@@ -91,16 +94,13 @@ export default function App() {
     if (!socket) return;
 
     const handleSendPeer = (data) => {
-      if (String(adminId) !== String(data.participant)) {
-        console.log("Received peer:", data.peer);
-      }
+      if (String(adminId) === String(data.senderId)) return;
+      console.log("Received remote peer:", data.peer);
+      setRemotePeerId(data.peer);
     };
 
     socket.on("sendPeer", handleSendPeer);
-
-    return () => {
-      socket.off("sendPeer", handleSendPeer);
-    };
+    return () => socket.off("sendPeer", handleSendPeer);
   }, [socket, adminId]);
 
   const router = createBrowserRouter([
@@ -165,7 +165,9 @@ export default function App() {
   }, []);
 
   return (
-    <PeerContext.Provider value={{ peerId, setPeerId }}>
+    <PeerContext.Provider
+      value={{ peerId, setPeerId, remotePeerId, setRemotePeerId }}
+    >
       <CurrentCallContext.Provider value={{ currentCall, setCurrentCall }}>
         <ReceiverContext.Provider value={{ receiver, setReceiver }}>
           <CallerContext.Provider value={{ caller, setCaller }}>

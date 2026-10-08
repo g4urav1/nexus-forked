@@ -1,21 +1,17 @@
-import {
-  FaInstagram as Instagram,
-
-} from "react-icons/fa";
-import { Mail,  Key } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { FaInstagram as Instagram } from "react-icons/fa";
+import { Mail, Key } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AdminContext } from "../context/context";
 
 export default function ForgetPasswordPage() {
   const [btnDisable, setBtnDisable] = useState(true);
   const [codeDisable, setCodeDisable] = useState(false);
-  const [sending, setSending] = useState(false)
+  const [sending, setSending] = useState(false);
 
   const [UserName, setUserName] = useState("");
   const [Code, setCode] = useState("");
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (!UserName) {
       setCodeDisable(true);
@@ -32,11 +28,10 @@ export default function ForgetPasswordPage() {
   }, [UserName]);
 
   const getCode = async () => {
-    
-    if (UserName.trim()== ""){
-      return alert("Enter Username first")
+    if (UserName.trim() == "") {
+      return alert("Enter Username first");
     }
-    setSending(true)
+    setSending(true);
     try {
       const response = await fetch("http://localhost:1111/getCode", {
         method: "POST",
@@ -45,25 +40,22 @@ export default function ForgetPasswordPage() {
         },
         body: JSON.stringify({
           UserName: UserName,
-        
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
-        setBtnDisable(false)
-      
+        setBtnDisable(false);
       } else {
         alert(data.message);
       }
     } catch (error) {
       console.log(error);
-    }finally{
-      setSending(false)
+    } finally {
+      setSending(false);
     }
   };
-
 
   const verifyCode = async () => {
     try {
@@ -74,16 +66,15 @@ export default function ForgetPasswordPage() {
         },
         body: JSON.stringify({
           UserName: UserName,
-          Code: Code
+          Code: Code,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("Username", UserName)
+        localStorage.setItem("Username", UserName);
         alert(data.message);
-        navigate("/reset-password")
-      
+        navigate("/reset-password");
       } else {
         alert(data.message);
       }
@@ -91,8 +82,6 @@ export default function ForgetPasswordPage() {
       console.log(error);
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-violet-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-black flex items-center justify-center px-4">
@@ -167,8 +156,8 @@ export default function ForgetPasswordPage() {
               />
 
               <input
-              disabled={codeDisable}
-              title={codeDisable?"get code first": ""}
+                disabled={codeDisable}
+                title={codeDisable ? "get code first" : ""}
                 type="text"
                 placeholder="Code"
                 value={Code}
@@ -178,8 +167,6 @@ export default function ForgetPasswordPage() {
             </div>
 
             {btnDisable ? (
-
-                
               <button
                 type="button"
                 disabled={sending}
@@ -189,10 +176,10 @@ export default function ForgetPasswordPage() {
                 className={`w-full flex justify-center rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 py-3 font-semibold text-white transition hover:scale-[1.02] active:scale-95 cursor-pointer`}
               >
                 {sending ? (
-                      <div className="h-5 w-5 animate-spin   rounded-full border-l-[2px] border-b-[1.5px] border-r-[1px] border-text border-t-transparent"></div>
-                    ) : (
-                      "Get Code"
-                    )}
+                  <div className="h-5 w-5 animate-spin   rounded-full border-l-[2px] border-b-[1.5px] border-r-[1px] border-text border-t-transparent"></div>
+                ) : (
+                  "Get Code"
+                )}
               </button>
             ) : (
               <button

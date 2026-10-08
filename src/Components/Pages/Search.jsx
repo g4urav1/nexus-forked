@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { AdminContext } from "../context/context";
@@ -6,7 +6,6 @@ import { AdminContext } from "../context/context";
 export default function SearchPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  // People List State
   const [people, setPeople] = useState([]);
 
   const { admin, setAdmin } = useContext(AdminContext);
@@ -29,7 +28,6 @@ export default function SearchPage() {
 
     const data = await response.json();
 
-    console.log(data);
     setPeople(data);
   };
 
@@ -38,8 +36,6 @@ export default function SearchPage() {
   }, [admin]);
 
   const handleFollow = async (e, userId) => {
-    console.log("handleFollow CALLED");
-    console.log("userId:", userId);
     e.stopPropagation();
     try {
       const response = await fetch("http://localhost:1111/follow", {
@@ -53,18 +49,12 @@ export default function SearchPage() {
         }),
       });
 
-      console.log("Response received:", response.status);
-
       const data = await response.json();
-
-      console.log("Follow response:", data);
 
       if (!response.ok) {
         alert(data.message || "Something went wrong");
         return;
       }
-
-      console.log("FOLLOW SUCCESS");
 
       setAdmin({
         ...admin,

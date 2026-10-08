@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
-import { AdminContext, UserPostContext } from "../context/context";
-import { Heart, User } from "lucide-react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { AdminContext } from "../context/context";
+import { Heart } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -176,8 +176,7 @@ export default function ProfilePage() {
         FollowersCount: data.Followers.length,
       });
 
-      getProfile()
-
+      getProfile();
     } catch (error) {
       console.error("Follow error:", error);
     }

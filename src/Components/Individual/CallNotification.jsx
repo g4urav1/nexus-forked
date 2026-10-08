@@ -7,8 +7,8 @@ import {
 } from "../context/context";
 import { useNavigate } from "react-router-dom";
 
-export default function CallNotification({ socket }) {
-  const [darkMode, setDarkMode] = useState(true);
+export default function CallNotification() {
+  const [darkMode] = useState(true);
 
   const navigate = useNavigate();
 
@@ -16,6 +16,12 @@ export default function CallNotification({ socket }) {
   const { receiver } = useContext(ReceiverContext);
   const { callStatus } = useContext(CallStatusContext);
   const { currentCall } = useContext(CurrentCallContext);
+
+  const adminId = localStorage.getItem("adminId");
+
+  const callerId = caller?._id?.toString();
+
+  const isCaller = adminId !== callerId;
 
   const [duration, setDuration] = useState(0);
 
@@ -32,12 +38,6 @@ export default function CallNotification({ socket }) {
   const hours = Math.floor(duration / 3600);
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = duration % 60;
-
-  const adminId = localStorage.getItem("adminId");
-
-  const callerId = caller?._id?.toString();
-
-  const isCaller = adminId !== callerId;
 
   useEffect(() => {
     if (callStatus !== "ended") {

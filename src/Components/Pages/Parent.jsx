@@ -22,8 +22,8 @@ export default function Parent({ socket }) {
   const { setShowPopUp } = useContext(PopUpContext);
   const { setPopUpMsg } = useContext(PopUpMsgContext);
 
-  const { caller, setCaller } = useContext(CallerContext);
-  const { receiver, setReceiver } = useContext(ReceiverContext);
+  const { setCaller } = useContext(CallerContext);
+  const { setReceiver } = useContext(ReceiverContext);
 
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
   const { setCurrentCall } = useContext(CurrentCallContext);
@@ -57,7 +57,6 @@ export default function Parent({ socket }) {
 
     const GetCall = (data) => {
       setCurrentCall(data);
-      console.log(data);
 
       const { caller, receiver } = data;
 

@@ -31,8 +31,6 @@ export default function NotificationPage({ socket }) {
     socket.on("sendNotification", getNotifications);
   }, [socket]);
 
-  
-
   const formatPostTime = (date) => {
     const diff = Date.now() - new Date(date).getTime();
 
@@ -54,7 +52,6 @@ export default function NotificationPage({ socket }) {
     });
   };
 
-  const { admin } = useContext(AdminContext);
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">

@@ -1,17 +1,12 @@
-import {
-  FaInstagram as Instagram,
-  FaFacebookF as Facebook,
-  FaApple as Apple,
-} from "react-icons/fa";
-import { Mail, Lock, Eye, EyeOff, Key } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { FaInstagram as Instagram } from "react-icons/fa";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ForgetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [Password, setPassword] = useState("");
-  const [sending, setSending] = useState(false);
 
   const [UserName, setUserName] = useState("");
   const navigate = useNavigate();
@@ -36,7 +31,7 @@ export default function ForgetPasswordPage() {
       const data = await response.json();
       if (response.ok) {
         alert(data.message);
-        localStorage.removeItem("Username")
+        localStorage.removeItem("Username");
         navigate("/login");
       } else {
         alert(data.message);

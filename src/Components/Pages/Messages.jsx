@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import DesktopNav from "../Individual/DesktopNav";
 import MobileMenu from "../Individual/MobileMenu";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CallerContext,
-  CallStatusContext,
   PeerContext,
   ReceiverContext,
 } from "../context/context";

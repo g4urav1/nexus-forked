@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { AdminContext } from "../context/context";
@@ -79,7 +79,6 @@ export default function ProfilePage() {
 
       setfollowing(data.result);
 
-      console.log("following: ", following);
     } catch (error) {
       console.error("Failed to get following:", error);
       setfollowing([]);

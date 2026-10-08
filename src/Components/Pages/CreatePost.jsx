@@ -32,7 +32,6 @@ export default function EditPage() {
         alert(data.message);
       }
       alert(data.message);
-      console.log(data);
     } catch (error) {
       alert("something went wrong");
       console.error(error);
