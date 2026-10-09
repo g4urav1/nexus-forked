@@ -12,7 +12,7 @@ import SignupPage from "./Components/Pages/Signup";
 import EditPage from "./Components/Pages/Edit";
 import CreatePostPage from "./Components/Pages/CreatePost";
 import Post from "./Components/Pages/Post";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Peer } from "peerjs";
 
@@ -64,11 +64,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    console.log("#################################");
-
     console.log("Stream updated: ", localStream);
-
-    console.log("##################################");
   }, [localStream]);
 
   useEffect(() => {
@@ -97,21 +93,29 @@ export default function App() {
       })();
     });
 
-    peer.on("call", (call) => {
-      console.log("$$$$$$$$$$$$$$$$$44");
-      console.log("incoming call");
-      console.log("$$$$$$$$$$$$$$$$$$$$$$");
-      call.answer(localStream);
-      call.on("stream", (remoteStream) => {
-        console.log("Receiving remote stream: ", remoteStream);
-        setRemoteStream(remoteStream);
-      });
-    });
-
     return () => {
       peer.destroy();
     };
   }, []);
+
+  useEffect(() => {
+    if (!peer) return;
+
+    const handleIncomingCall = (call) => {
+      console.log("incoming call: ", localStream);
+      call.answer(localStream);
+
+      call.on("stream", (remoteStream) => {
+        console.log("Receiving remote stream: ", remoteStream);
+        setRemoteStream(remoteStream);
+      });
+    };
+
+    peer.on("call", handleIncomingCall);
+    return () => {
+      peer.off("call", handleIncomingCall);
+    };
+  }, [peer, localStream]);
 
   useEffect(() => {
     if (!socket) return;
@@ -120,13 +124,13 @@ export default function App() {
       if (String(adminId) === String(data.senderId)) return;
       console.log("Received remote peer:", data.peer);
       console.log("Making call", localStream, data.peer);
-      if (localStream) {
+
+      if (localStream && peer) {
         const call = peer.call(data.peer, localStream);
 
-        call.on("stream", () => {
-          console.log("-------------------------------------");
+        call.on("stream", (remoteStream) => {
           console.log("remote stream received!");
-          console.log("---------------------------------");
+          setRemoteStream(remoteStream);
         });
       }
       setRemotePeerId(data.peer);
@@ -134,42 +138,56 @@ export default function App() {
 
     socket.on("sendPeer", handleSendPeer);
     return () => socket.off("sendPeer", handleSendPeer);
-  }, [socket, adminId, localStream]);
+  }, [socket, adminId, localStream, peer]);
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Parent socket={socket} />,
-      children: [
-        { path: "/", element: <FeedPage socket={socket} /> },
-        { path: "/auth", element: <AuthPages /> },
-        { path: "/inbox", element: <InboxPage /> },
+  useEffect(() => {
+    if (callStatus !== "ended") return;
+
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+    }
+    setLocalStream(null);
+    setRemoteStream(null);
+  }, [callStatus]);
+
+  const router = useMemo(
+    () =>
+      createBrowserRouter([
         {
-          path: "/inbox/:conversationId",
-          element: <MessagesPage socket={socket} />,
+          path: "/",
+          element: <Parent socket={socket} />,
+          children: [
+            { path: "/", element: <FeedPage socket={socket} /> },
+            { path: "/auth", element: <AuthPages /> },
+            { path: "/inbox", element: <InboxPage /> },
+            {
+              path: "/inbox/:conversationId",
+              element: <MessagesPage socket={socket} />,
+            },
+            {
+              path: "/call/:conversationId",
+              element: <CallPage socket={socket} />,
+            },
+            { path: "/User/:Username", element: <ProfilePage /> },
+            { path: "/search", element: <SearchPage /> },
+            { path: "/login", element: <LoginPage /> },
+            { path: "/forget-password", element: <ForgetPasswordPage /> },
+            { path: "/reset-password", element: <ResetPasswordPage /> },
+            { path: "/signup", element: <SignupPage /> },
+            {
+              path: "/notification",
+              element: <NotificationPage socket={socket} />,
+            },
+            { path: "/edit/profile", element: <EditPage /> },
+            { path: "/create/post", element: <CreatePostPage /> },
+            { path: "/post/:id", element: <Post socket={socket} /> },
+            { path: "/Followers/:Username", element: <FollowersPage /> },
+            { path: "/Following/:Username", element: <FollowingPage /> },
+          ],
         },
-        {
-          path: "/call/:conversationId",
-          element: <CallPage socket={socket} />,
-        },
-        { path: "/User/:Username", element: <ProfilePage /> },
-        { path: "/search", element: <SearchPage /> },
-        { path: "/login", element: <LoginPage /> },
-        { path: "/forget-password", element: <ForgetPasswordPage /> },
-        { path: "/reset-password", element: <ResetPasswordPage /> },
-        { path: "/signup", element: <SignupPage /> },
-        {
-          path: "/notification",
-          element: <NotificationPage socket={socket} />,
-        },
-        { path: "/edit/profile", element: <EditPage /> },
-        { path: "/create/post", element: <CreatePostPage /> },
-        { path: "/post/:id", element: <Post socket={socket} /> },
-        { path: "/Followers/:Username", element: <FollowersPage /> },
-        { path: "/Following/:Username", element: <FollowingPage /> },
-      ],
-    },
-  ]);
+      ]),
+    [socket],
+  );
 
   const loadUser = async () => {
     try {
