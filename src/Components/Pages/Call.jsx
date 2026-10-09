@@ -27,7 +27,8 @@ export default function CallPage({ socket }) {
   const { conversationId } = useParams();
 
   const { callStatus, setCallStatus } = useContext(CallStatusContext);
-  const { caller, setCaller } = useContext(CallerContext);
+  const { caller, setCaller, localStream, setLocalStream, remoteStream } =
+    useContext(CallerContext);
   const { receiver, setReceiver } = useContext(ReceiverContext);
   const { peerId } = useContext(PeerContext);
 
@@ -156,8 +157,14 @@ export default function CallPage({ socket }) {
           video: true,
           audio: true,
         });
+        console.log("Setting stream: ------------- 160 call page");
 
+        setLocalStream(mediaStream);
+
+        console.log("reached here ---------------------");
         setStream(mediaStream);
+
+        console.log(mediaStream, "from the call page");
 
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
@@ -238,6 +245,15 @@ export default function CallPage({ socket }) {
     }
   };
 
+  const remoteVideoRef = useRef(null);
+
+  useEffect(() => {
+    if (remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+      remoteVideoRef.current.play();
+    }
+  }, [remoteStream]);
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-[100dvh] w-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
@@ -284,15 +300,18 @@ export default function CallPage({ socket }) {
                   </div>
 
                   {/* Local camera preview */}
+
                   <div className="absolute right-4 top-4 z-30 h-32 w-24 overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl sm:h-40 sm:w-32 md:h-48 md:w-36">
                     {camOn ? (
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="h-full w-full object-cover scale-x-[-1]"
-                      />
+                      <>
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          muted
+                          playsInline
+                          className="h-full w-full object-cover scale-x-[-1]"
+                        />
+                      </>
                     ) : (
                       <div className="w-full h-full flex justify-center items-center">
                         <img
@@ -426,11 +445,19 @@ export default function CallPage({ socket }) {
                   {/* Other user's profile */}
                   {callUser && (
                     <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 pb-28 text-center">
-                      <img
-                        src={callUser.Pfp || ""}
-                        alt={callUser.Username || "User"}
-                        className="h-28 w-28 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-32 sm:w-32 md:h-36 md:w-36"
-                      />
+                      {remoteStream ? (
+                        <video
+                          ref={remoteVideoRef}
+                          src=""
+                          className=" w-full scale-x-[-1]"
+                        ></video>
+                      ) : (
+                        <img
+                          src={callUser.Pfp || ""}
+                          alt={callUser.Username || "User"}
+                          className="h-28 w-28 rounded-full object-cover ring-4 ring-white/20 shadow-2xl sm:h-32 sm:w-32 md:h-36 md:w-36"
+                        />
+                      )}
 
                       <div>
                         <h2 className="text-lg font-semibold text-white sm:text-xl">

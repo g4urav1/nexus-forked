@@ -40,6 +40,8 @@ export default function App() {
   const [ShowPopUp, setShowPopUp] = useState(false);
   const [popUpMsg, setPopUpMsg] = useState("");
   const [callStatus, setCallStatus] = useState("");
+  const [localStream, setLocalStream] = useState(null);
+  const [peer, setPeer] = useState(null);
 
   const adminId = localStorage.getItem("adminId");
 
@@ -50,6 +52,7 @@ export default function App() {
 
   const [peerId, setPeerId] = useState("");
   const [remotePeerId, setRemotePeerId] = useState("");
+  const [remoteStream, setRemoteStream] = useState(null);
 
   useEffect(() => {
     (() => {
@@ -61,7 +64,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    console.log("#################################");
+
+    console.log("Stream updated: ", localStream);
+
+    console.log("##################################");
+  }, [localStream]);
+
+  useEffect(() => {
     const peer = new Peer();
+    setPeer(peer);
 
     peer.on("open", (id) => {
       console.log("Peer id: ", id);
@@ -85,6 +97,17 @@ export default function App() {
       })();
     });
 
+    peer.on("call", (call) => {
+      console.log("$$$$$$$$$$$$$$$$$44");
+      console.log("incoming call");
+      console.log("$$$$$$$$$$$$$$$$$$$$$$");
+      call.answer(localStream);
+      call.on("stream", (remoteStream) => {
+        console.log("Receiving remote stream: ", remoteStream);
+        setRemoteStream(remoteStream);
+      });
+    });
+
     return () => {
       peer.destroy();
     };
@@ -96,12 +119,22 @@ export default function App() {
     const handleSendPeer = (data) => {
       if (String(adminId) === String(data.senderId)) return;
       console.log("Received remote peer:", data.peer);
+      console.log("Making call", localStream, data.peer);
+      if (localStream) {
+        const call = peer.call(data.peer, localStream);
+
+        call.on("stream", () => {
+          console.log("-------------------------------------");
+          console.log("remote stream received!");
+          console.log("---------------------------------");
+        });
+      }
       setRemotePeerId(data.peer);
     };
 
     socket.on("sendPeer", handleSendPeer);
     return () => socket.off("sendPeer", handleSendPeer);
-  }, [socket, adminId]);
+  }, [socket, adminId, localStream]);
 
   const router = createBrowserRouter([
     {
@@ -170,7 +203,15 @@ export default function App() {
     >
       <CurrentCallContext.Provider value={{ currentCall, setCurrentCall }}>
         <ReceiverContext.Provider value={{ receiver, setReceiver }}>
-          <CallerContext.Provider value={{ caller, setCaller }}>
+          <CallerContext.Provider
+            value={{
+              caller,
+              setCaller,
+              localStream,
+              setLocalStream,
+              remoteStream,
+            }}
+          >
             <CallStatusContext.Provider value={{ callStatus, setCallStatus }}>
               <PopUpMsgContext.Provider value={{ popUpMsg, setPopUpMsg }}>
                 <PopUpContext.Provider value={{ ShowPopUp, setShowPopUp }}>
