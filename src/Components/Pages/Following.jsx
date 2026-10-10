@@ -18,7 +18,7 @@ export default function ProfilePage() {
     e.stopPropagation();
 
     try {
-      const response = await fetch("http://localhost:1111/follow", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/follow`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -63,7 +63,7 @@ export default function ProfilePage() {
       setLoading(true);
 
       const response = await fetch(
-        `http://localhost:1111/getFollowing/${encodeURIComponent(Username)}`,
+       `${import.meta.env.VITE_BASE_URL}/getFollowing/${encodeURIComponent(Username)}`,
         {
           credentials: "include",
         },

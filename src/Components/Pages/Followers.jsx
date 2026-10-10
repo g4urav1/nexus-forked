@@ -1,4 +1,4 @@
-import  { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MobileMenu from "../Individual/MobileMenu";
 import DesktopNav from "../Individual/DesktopNav";
 import { AdminContext } from "../context/context";
@@ -18,7 +18,7 @@ export default function ProfilePage() {
     e.stopPropagation();
 
     try {
-      const response = await fetch("http://localhost:1111/follow", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/follow`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -35,7 +35,7 @@ export default function ProfilePage() {
         alert(data.message || "Something went wrong");
         return;
       }
- 
+
       setFollowers((prev) =>
         prev.map((user) =>
           user.id === userId
@@ -63,7 +63,7 @@ export default function ProfilePage() {
       setLoading(true);
 
       const response = await fetch(
-        `http://localhost:1111/getFollowers/${encodeURIComponent(Username)}`,
+        `${import.meta.env.VITE_BASE_URL}/getFollowers/${encodeURIComponent(Username)}`,
         {
           credentials: "include",
         },
@@ -78,7 +78,6 @@ export default function ProfilePage() {
       }
 
       setFollowers(data.result);
-
     } catch (error) {
       console.error("Failed to get Followers:", error);
       setFollowers([]);

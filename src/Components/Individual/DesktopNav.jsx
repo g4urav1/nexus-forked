@@ -11,7 +11,7 @@ export default function DesktopNav() {
 
   const handleLogout = async () => {
     if (confirm("Do you want to Logout")) {
-      await fetch("http://localhost:1111/logout", {
+      await fetch(`${import.meta.env.VITE_BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });

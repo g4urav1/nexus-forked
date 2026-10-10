@@ -56,7 +56,9 @@ export default function App() {
 
   useEffect(() => {
     (() => {
-      const socket = io("http://localhost:1111", { withCredentials: true });
+      const socket = io(import.meta.env.VITE_BASE_URL, {
+        withCredentials: true,
+      });
       setSocket(socket);
       // socket.on("welcome", (data) => alert(data));
       socket.on("randomRouteHit", (data) => console.log(data));
@@ -77,12 +79,15 @@ export default function App() {
 
       (async () => {
         try {
-          let response = await fetch("http://localhost:1111/connect/peer", {
-            body: JSON.stringify({ peerId: id }),
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            credentials: "include",
-          });
+          let response = await fetch(
+            `${import.meta.env.VITE_BASE_URL}/connect/peer`,
+            {
+              body: JSON.stringify({ peerId: id }),
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              credentials: "include",
+            },
+          );
 
           if (!response.ok) throw new Error("Something went wrong!");
 
@@ -101,8 +106,8 @@ export default function App() {
   useEffect(() => {
     if (!peer) return;
 
-    const handleIncomingCall = (call) => {
-      console.log("incoming call: ", localStream);
+    const handleOutGoingCall = (call) => {
+      console.log("OutGoing call: ", localStream);
       call.answer(localStream);
 
       call.on("stream", (remoteStream) => {
@@ -111,9 +116,9 @@ export default function App() {
       });
     };
 
-    peer.on("call", handleIncomingCall);
+    peer.on("call", handleOutGoingCall);
     return () => {
-      peer.off("call", handleIncomingCall);
+      peer.off("call", handleOutGoingCall);
     };
   }, [peer, localStream]);
 
@@ -191,7 +196,7 @@ export default function App() {
 
   const loadUser = async () => {
     try {
-      const response = await fetch(`http://localhost:1111/admin`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin`, {
         credentials: "include",
       });
       const data = await response.json();

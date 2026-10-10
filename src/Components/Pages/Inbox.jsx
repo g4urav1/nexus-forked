@@ -18,7 +18,7 @@ export default function InboxPage() {
       try {
         setLoadingConversation(true);
 
-        const response = await fetch("http://localhost:1111/conversations", {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/conversations`, {
           credentials: "include",
         });
 

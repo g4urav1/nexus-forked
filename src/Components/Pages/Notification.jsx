@@ -9,7 +9,7 @@ export default function NotificationPage({ socket }) {
 
   const getNotifications = async () => {
     try {
-      const response = await fetch(`http://localhost:1111/notifications`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/notifications`, {
         credentials: "include",
       });
       const data = await response.json();

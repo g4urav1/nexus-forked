@@ -20,7 +20,7 @@ export default function EditPage() {
     formData.append("caption", Caption);
 
     try {
-      const response = await fetch("http://localhost:1111/uploadmain", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/uploadmain`, {
         credentials: "include",
         method: "POST",
         body: formData,

@@ -69,7 +69,7 @@ export default function Post({ socket }) {
     try {
       setLoading(true);
 
-      const response = await fetch(`http://localhost:1111/post/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/post/${id}`, {
         credentials: "include",
       });
 
@@ -89,7 +89,7 @@ export default function Post({ socket }) {
     try {
       setCommentsLoading(true);
 
-      const response = await fetch(`http://localhost:1111/getComments/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/getComments/${id}`, {
         credentials: "include",
       });
 
@@ -113,7 +113,7 @@ export default function Post({ socket }) {
 
   const handleLike = async (postId) => {
     try {
-      const response = await fetch("http://localhost:1111/likes", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/likes`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -165,7 +165,7 @@ export default function Post({ socket }) {
     try {
       setCommentLoading(true);
 
-      const response = await fetch("http://localhost:1111/addComments", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/addComments`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -208,7 +208,7 @@ export default function Post({ socket }) {
     try {
       setCommentLoading(true);
 
-      const response = await fetch("http://localhost:1111/deleteComment", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/deleteComment`, {
         method: "POST",
         credentials: "include",
         headers: {

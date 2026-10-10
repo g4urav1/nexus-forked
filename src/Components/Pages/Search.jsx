@@ -20,7 +20,7 @@ export default function SearchPage() {
     }
 
     const response = await fetch(
-      `http://localhost:1111/searchUsers?searchQuery=${query}`,
+      `${import.meta.env.VITE_BASE_URL}/searchUsers?searchQuery=${query}`,
       {
         credentials: "include",
       },
@@ -38,7 +38,7 @@ export default function SearchPage() {
   const handleFollow = async (e, userId) => {
     e.stopPropagation();
     try {
-      const response = await fetch("http://localhost:1111/follow", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/follow`, {
         method: "POST",
         credentials: "include",
         headers: {

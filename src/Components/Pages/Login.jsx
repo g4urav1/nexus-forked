@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:1111/login", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/login`, {
         credentials: "include",
         method: "POST",
         headers: {

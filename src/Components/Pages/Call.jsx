@@ -77,7 +77,7 @@ export default function CallPage({ socket }) {
     const getCallDetail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:1111/call/${conversationId}`,
+          `${import.meta.env.VITE_BASE_URL}/call/${conversationId}`,
           {
             method: "GET",
             credentials: "include",
@@ -191,7 +191,7 @@ export default function CallPage({ socket }) {
 
   const updateCallStatus = async (status) => {
     try {
-      await fetch(`http://localhost:1111/call/${conversationId}/status`, {
+      await fetch(`${import.meta.env.VITE_BASE_URL}/call/${conversationId}/status`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -222,7 +222,7 @@ export default function CallPage({ socket }) {
 
   const sendPeer = async () => {
     try {
-      await fetch(`http://localhost:1111/call/${conversationId}/sendPeer`, {
+      await fetch(`${import.meta.env.VITE_BASE_URL}/call/${conversationId}/sendPeer`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

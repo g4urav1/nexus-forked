@@ -26,7 +26,7 @@ export default function SignupPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:1111/usernameAvailability?username=${encodeURIComponent(username)}`,
+        `${import.meta.env.VITE_BASE_URL}/usernameAvailability?username=${encodeURIComponent(username)}`,
       );
 
       const data = await response.json();
@@ -56,7 +56,7 @@ export default function SignupPage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:1111/signup", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

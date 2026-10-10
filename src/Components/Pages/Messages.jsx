@@ -50,7 +50,7 @@ export default function MessagesPage({ socket }) {
   const Call = async () => {
     try {
       const response = await fetch(
-        `http://localhost:1111/call/${conversationId}`,
+       `${import.meta.env.VITE_BASE_URL}/call/${conversationId}`,
         {
           method: "POST",
           credentials: "include",
@@ -80,7 +80,7 @@ export default function MessagesPage({ socket }) {
   const SendPeer = async () => {
     try {
       const response = await fetch(
-        `http://localhost:1111/call/${conversationId}/sendPeer`,
+       `${import.meta.env.VITE_BASE_URL}/call/${conversationId}/sendPeer`,
         {
           method: "POST",
           credentials: "include",
@@ -138,7 +138,7 @@ export default function MessagesPage({ socket }) {
       try {
         setLoadingConversation(true);
 
-        const response = await fetch("http://localhost:1111/conversations", {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/conversations`, {
           credentials: "include",
         });
 
@@ -170,7 +170,7 @@ export default function MessagesPage({ socket }) {
       }
 
       const response = await fetch(
-        `http://localhost:1111/messages/${activeChatId}?skip=${skip}`,
+      `${import.meta.env.VITE_BASE_URL}/messages/${activeChatId}?skip=${skip}`,
         {
           credentials: "include",
         },
@@ -289,7 +289,7 @@ export default function MessagesPage({ socket }) {
 
     try {
       const response = await fetch(
-        `http://localhost:1111/sendMessages/${activeChatId}`,
+       `${import.meta.env.VITE_BASE_URL}/sendMessages/${activeChatId}`,
         {
           credentials: "include",
           method: "POST",

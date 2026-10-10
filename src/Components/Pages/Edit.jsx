@@ -18,7 +18,7 @@ export default function EditPage() {
     formData.append("Bio", Bio);
 
     try {
-      const response = await fetch("http://localhost:1111/edit_profile", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/edit_profile`, {
         credentials: "include",
         method: "POST",
         body: formData,

@@ -33,7 +33,7 @@ export default function ForgetPasswordPage() {
     }
     setSending(true);
     try {
-      const response = await fetch("http://localhost:1111/getCode", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/getCode`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export default function ForgetPasswordPage() {
 
   const verifyCode = async () => {
     try {
-      const response = await fetch("http://localhost:1111/verifyCode", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/verifyCode`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

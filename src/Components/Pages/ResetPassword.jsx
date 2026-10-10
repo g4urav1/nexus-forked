@@ -17,7 +17,7 @@ export default function ForgetPasswordPage() {
 
   const changePassword = async () => {
     try {
-      const response = await fetch("http://localhost:1111/changePassword", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/changePassword`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const getLikedPosts = async () => {
     try {
       const response = await fetch(
-        `http://localhost:1111/likedPosts/${Username}`,
+        `${import.meta.env.VITE_BASE_URL}/likedPosts/${Username}`,
         {
           credentials: "include",
         },
@@ -45,9 +45,12 @@ export default function ProfilePage() {
 
   const getProfile = async () => {
     try {
-      const response = await fetch(`http://localhost:1111/user/${Username}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/user/${Username}`,
+        {
+          credentials: "include",
+        },
+      );
 
       const data = await response.json();
 
@@ -115,7 +118,7 @@ export default function ProfilePage() {
   const handleLike = async (postId, e) => {
     e.stopPropagation();
     try {
-      const response = await fetch("http://localhost:1111/likes", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/likes`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -151,7 +154,7 @@ export default function ProfilePage() {
 
   const handleFollow = async (userId) => {
     try {
-      const response = await fetch("http://localhost:1111/follow", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/follow`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -186,7 +189,7 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     if (confirm("Do you want to Logout")) {
-      await fetch("http://localhost:1111/logout", {
+      await fetch(`${import.meta.env.VITE_BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });

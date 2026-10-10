@@ -11,12 +11,11 @@ export default function FeedPage({ socket }) {
   const [posts, setPosts] = useState([]);
 
   const getFeed = async () => {
-    const response = await fetch("http://localhost:1111", {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}`, {
       credentials: "include",
     });
     const data = await response.json();
     setPosts(data);
-
   };
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function FeedPage({ socket }) {
     setSending(true);
 
     try {
-      const response = await fetch("http://localhost:1111/uploadmain", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/uploadmain`, {
         credentials: "include",
         method: "POST",
         body: formData,
@@ -94,7 +93,7 @@ export default function FeedPage({ socket }) {
 
   const handleLike = async (postId) => {
     try {
-      const response = await fetch("http://localhost:1111/likes", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/likes`, {
         method: "POST",
         credentials: "include",
         headers: {
